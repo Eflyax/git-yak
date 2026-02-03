@@ -3,7 +3,8 @@
 		class="commit-refs-row"
 		@click="printInfo"
 	>
-		<div
+		{{commit.hash}}
+		<!-- <div
 			v-for="reference in references"
 			:class="{
 				'cursor-pointer': reference.type !== 'head'
@@ -25,7 +26,7 @@
 				v-if="reference.type !== 'head'"
 				:name="$settings.icons[reference.type]"
 			/>
-		</div>
+		</div> -->
 	</div>
 </template>
 

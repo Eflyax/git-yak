@@ -19,8 +19,8 @@
 					</template>
 
 					<circle
-						:cx="CONFIG.PADDING_LEFT + commit.level * this.CONFIG.X_STEP"
-						:cy="CONFIG.PADDING_TOP + commit.index * this.CONFIG.Y_STEP"
+						:cx="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP"
+						:cy="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP"
 						:r="CONFIG.CIRCLE_R"
 						:fill="getColor(commit.level)"
 						stroke="#1e1e1e"
@@ -38,7 +38,6 @@
 				:style="{
 					height: `${CONFIG.Y_STEP}px`
 				}"
-
 			/>
 		</div>
 
@@ -47,6 +46,7 @@
 
 <script>
 import CommitRow from './CommitRow.vue';
+import {CONFIG} from '@/settings';
 
 export default {
 	components: {
@@ -69,16 +69,7 @@ export default {
 	},
 	data() {
 		return {
-			CONFIG: {
-				X_STEP: 30,
-				Y_STEP: 36,
-				CIRCLE_R: 10,
-				LINE_WIDTH: 2,
-				PADDING_LEFT: 15,
-				PADDING_TOP: 18,
-				COLORS: ['#00C8F0', '#0A7FFF', '#A020FF', '#E020D6', '#FF0084', '#FF0000'],
-				CORNER_RADIUS: 10,
-			}
+			CONFIG
 		}
 	},
 	watch: {
@@ -106,8 +97,8 @@ export default {
 			const maxLevel = Math.max(...this.commits.map(c => c.level || 0));
 
 			return {
-				width: (maxLevel + 1) * this.CONFIG.X_STEP + this.CONFIG.PADDING_LEFT + 20,
-				height: this.commits.length * this.CONFIG.Y_STEP + 20
+				width: (maxLevel + 1) * CONFIG.X_STEP + CONFIG.PADDING_LEFT + 20,
+				height: this.commits.length * CONFIG.Y_STEP + 20
 			};
 		}
 	},
@@ -124,13 +115,13 @@ export default {
 			}
 
 			const
-				startX = this.CONFIG.PADDING_LEFT + commit.level * this.CONFIG.X_STEP,
-				startY = this.CONFIG.PADDING_TOP + commit.index * this.CONFIG.Y_STEP,
-				endX = this.CONFIG.PADDING_LEFT + parent.level * this.CONFIG.X_STEP,
-				endY = this.CONFIG.PADDING_TOP + parent.index * this.CONFIG.Y_STEP;
+				startX = CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP,
+				startY = CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP,
+				endX = CONFIG.PADDING_LEFT + parent.level * CONFIG.X_STEP,
+				endY = CONFIG.PADDING_TOP + parent.index * CONFIG.Y_STEP;
 
 			if (commit.level === parent.level) {
-				return `M ${startX} ${startY + this.CONFIG.CIRCLE_R} L ${endX} ${endY - this.CONFIG.CIRCLE_R}`;
+				return `M ${startX} ${startY + CONFIG.CIRCLE_R} L ${endX} ${endY - CONFIG.CIRCLE_R}`;
 			}
 
 			const
@@ -140,13 +131,13 @@ export default {
 
 			if (deltaLevel < 0) {
 				const
-					fromX = startX + (this.CONFIG.CIRCLE_R * xDir),
+					fromX = startX + (CONFIG.CIRCLE_R * xDir),
 					fromY = startY,
 					targetX = endX,
-					targetY = endY - this.CONFIG.CIRCLE_R,
+					targetY = endY - CONFIG.CIRCLE_R,
 					width = Math.abs(endX - startX),
 					height = Math.abs(endY - startY),
-					r = Math.min(this.CONFIG.CORNER_RADIUS / 1.5, width / 2, height / 2);
+					r = Math.min(CONFIG.CORNER_RADIUS / 1.5, width / 2, height / 2);
 
 				return `
 					M ${fromX} ${fromY}
@@ -158,10 +149,10 @@ export default {
 			else {
 				const
 					fromX = startX,
-					fromY = startY + (this.CONFIG.CIRCLE_R * yDir),
-					targetX = endX - (this.CONFIG.CIRCLE_R * xDir),
+					fromY = startY + (CONFIG.CIRCLE_R * yDir),
+					targetX = endX - (CONFIG.CIRCLE_R * xDir),
 					targetY = endY,
-					r = Math.min(this.CONFIG.CORNER_RADIUS / 1.5, Math.abs(endY - startY) / 2);
+					r = Math.min(CONFIG.CORNER_RADIUS / 1.5, Math.abs(endY - startY) / 2);
 
 				return `
 					M ${fromX} ${fromY}
@@ -172,7 +163,7 @@ export default {
 			}
 		},
 		getColor(level) {
-			return this.CONFIG.COLORS[level % this.CONFIG.COLORS.length];
+			return CONFIG.COLORS[level % CONFIG.COLORS.length];
 		},
 	},
 };

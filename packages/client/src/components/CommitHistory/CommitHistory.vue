@@ -59,7 +59,28 @@
 					:size="commit_refs_column_size"
 					class="pane-branches"
 				>
-					<recycle-scroller
+					  <!-- <div class="list-branch">
+							<CommitRefsRow
+								v-for="commit in commits"
+								:key="commit.hash"
+								:commit="commit"
+							/>
+					 </div> -->
+
+					<div class="list-branches" :style="{ paddingTop: '0px' }">
+						<CommitRefsRow
+							v-for="commit in commits"
+							:key="commit.hash"
+							:commit="commit"
+							:style="{
+								height: `${CONFIG.Y_STEP - 1}px`
+								// todo: why Y_STEP - 1 ???
+							}"
+						/>
+					</div>
+
+
+					 <!-- <recycle-scroller
 						v-if="commits !== undefined"
 						ref="references_scroller"
 						emit-update
@@ -68,12 +89,13 @@
 						key-field="hash"
 						list-class="static"
 						v-slot="{item}"
+						style="border: 2px solid aqua;"
 					>
 						<CommitRefsRow
 							:key="item.hash"
 							:commit="item"
 						/>
-					</recycle-scroller>
+					</recycle-scroller> -->
 				</pane>
 				<pane
 					:size="commit_graph_column_size"
@@ -82,14 +104,6 @@
 					class="graph-pane"
 					@scroll="onScroll"
 				>
-					<div
-						v-if="commits !== undefined"
-						class="absolute w-full"
-						:style="{
-							// height: `${commits.length * row_height}px`
-						}"
-					/>
-
 					<CommitGraph
 						v-if="commits !== undefined"
 						:row_height
@@ -128,6 +142,7 @@ import CommitRefsRow from "./CommitRefsRow.vue";
 import CommitRow from "./CommitRow.vue";
 import SettingsModal from "./SettingsModal.vue";
 import {Splitpanes, Pane} from 'splitpanes';
+import {CONFIG} from '@/settings';
 
 const field_separator = "\x06";
 const commit_limit_multiplier = 4;
@@ -178,6 +193,7 @@ export default {
 		search_hashes: [],
 		search_index: null,
 		show_settings_modal: false,
+		CONFIG
 	}),
 	computed: {
 		row_height() {

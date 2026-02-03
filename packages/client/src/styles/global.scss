@@ -142,6 +142,20 @@ svg {
 
 		}
 
+
+		.list-branches {
+			flex-grow: 1;
+			min-width: 0;
+
+			.commit-refs-row {
+				display: flex;
+				align-items: center;
+				padding: 0 10px;
+				border-bottom: 1px solid colors.$secondary;
+				cursor: pointer;
+			}
+		}
+
 		.graph-pane {
 
 		}
