@@ -43,11 +43,13 @@ app.component('Toggle', Toggle);
 
 for (const lang of ['css', 'scss', 'less']) {
 	// https://github.com/atularen/ngx-monaco-editor/issues/61
-	monaco.languages.css[`${lang}Defaults`].setOptions({ validate: false });
+	monaco.languages.css[`${lang}Defaults`].setOptions({validate: false});
 }
 monaco.editor.defineTheme('custom', monaco_theme);
 
-app.use(VueMonacoEditorPlugin, { monaco });
+app.use(VueMonacoEditorPlugin, {
+	monaco
+});
 
 app.config.globalProperties.$_ = _;
 app.config.globalProperties.$settings = settings;

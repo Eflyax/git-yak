@@ -20,12 +20,12 @@ export default defineConfig(({mode}) => {
 		},
 		server = {
 			cors: true,
-			fs: {
-				allow: [
-					'..',
-					'.'
-				]
-			},
+			// fs: {
+			// 	allow: [
+			// 		'..',
+			// 		'.'
+			// 	]
+			// },
 			allowedHosts: true
 		},
 		plugins = [

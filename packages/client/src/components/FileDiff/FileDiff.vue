@@ -21,6 +21,7 @@
 						{{ lang }}
 					</option>
 				</select>
+
 				<hr class="mx-2" />
 
 				<input
@@ -91,7 +92,6 @@
 import { editor as monaco_editor } from "monaco-editor";
 import monaco_metadata from "monaco-editor/esm/metadata";
 import { createApp } from "vue";
-
 import ElectronEventMixin from "@/mixins/ElectronEventMixin";
 import StoreMixin from "@/mixins/StoreMixin";
 import WindowEventMixin from "@/mixins/WindowEventMixin";
@@ -364,26 +364,43 @@ export default {
 				}
 			};
 			let contents = await Promise.all([loadOriginal(), loadModified()]);
+
 			if (file !== this.selected_file) {
 				return;
 			}
 			this.binary = _.some(contents, isFileBinary);
+
 			if (!this.binary) {
-				contents = contents.map((content) => new TextDecoder().decode(content));
+				// contents = contents.map((content) => {
+				// 	console.log({wut: content});
+				// 	return new TextDecoder().decode(content);
+				// });
 				// Use only \n as the newline character, for simplicity and consistency between the working tree and the index.
 				// Monaco Editor doesn't handle mixed line endings anyway.
 				// https://github.com/microsoft/vscode/issues/127
-				contents = contents.map((content) => content.replace(/\r\n/g, "\n"));
+				contents = contents.map((content) => {
+					if (typeof content !== 'string') {
+						return '';
+					}
+
+					return content?.replace(/\r\n/g, "\n")
+				});
 			}
+
 			if (_.isEqual([file, contents], [this.file, this.saved_contents])) {
 				return;
 			}
+
 			this.file = file;
 			this.loaded_contents = contents;
-			this.language = electron.store.get(
-				`language.${this.extension}`,
-				this.languages[0],
-			);
+
+			// todo
+			this.language = 'js';
+			// this.language = electron.store.get(
+			// 	`language.${this.extension}`,
+			// 	this.languages[0],
+			// );
+
 			this.diff_editor = undefined;
 		},
 		async save() {
