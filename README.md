@@ -1,41 +1,17 @@
-Git-Cracken
+<div align="center">
+    <h1>Git Yak</h1>
+    <img alt="Logo" src="assets/logo.jpg" width="200" />
+    <h2>Cross-platform GUI for Git.</h2>
+</div>
 
-A modern, web-based Git GUI inspired by GitKraken. > Manage your repositories from any browser, anywhere—local or remote.
 
-📖 About
+About
+---------------
 
-Git-Cracken is a self-hosted Git client designed to solve the common frustrations with existing tools.
+Born out of necessity.
 
-By decoupling the UI from the underlying Git engine using WebSockets, Git-Cracken allows you to run the backend on your machine or a remote headless server, while serving a rich, reactive interface directly to your web browser.
+Like many of you, I love the visual workflow of tools like GitKraken. But I faced a major limitation: the inability to work on remote servers. I watched a feature request for this functionality gather dust [for 5 years and almost 500 votes](https://feedback.gitkraken.com/suggestions/223779/repository-management-on-remote-machine-using-ssh-connection)... it is still "Under consideration" 😴
 
-It features a custom-built SVG commit graph (similar to GitKraken's "metro" style) rendered efficiently even for large histories.
+Enough was enough. I decided to stop waiting and start building. This project is the result—a modern, web-based Git GUI designed from the ground up to handle both local and remote repositories seamlessly.
 
-✨ Key Features
-
-		🌐 Browser-based UI: No need to install heavy desktop applications. If you have a browser, you have a Git client.
-
-		📡 Remote-First Architecture:
-
-				Keep your code on the server.
-
-				Run the backend agent on your remote VPS/Dev server.
-
-				Connect via the web UI and manage the repo as if it were local.
-
-		🎛 Multi-Server Management: One frontend instance can connect to multiple remote backends. Switch between your Localhost, Staging, and Production environments seamlessly.
-
-		⚡ Real-time Updates: Powered by WebSockets, file changes and git status updates are pushed to the UI instantly.
-
-		🎨 Beautiful History Graph: Custom SVG rendering engine for a clear, readable commit history (no rigid DOM limitations).
-
-		💸 Free & Open Source: No subscription fees for advanced features.
-
-🛠 Tech Stack
-
-		Frontend: Vue.js 3 (Composition API), SVG for graph rendering.
-
-		Backend: Node.js, Socket.io.
-
-		Communication: WebSockets (Real-time bidirectional communication).
-
-		Git Integration: Native git binary execution (spawn/exec).
+P.S. "Git Yak" is maybe working title 🤔
