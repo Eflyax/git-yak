@@ -18,7 +18,6 @@
 		</div>
 		<template v-else>
 			 <!-- <ActionBar /> -->
-
 			<div class="main-content">
 				<splitpanes style="height: 500px;" >
 					<pane
@@ -30,12 +29,13 @@
 					<pane
 						class="middle"
 					>
-						<CommitHistory
-							ref="commit_history"
-						/>
 						<FileDiff
 							v-if="selected_file !== null"
 							ref="file_diff"
+						/>
+						<CommitHistory
+							v-else
+							ref="commit_history"
 						/>
 					</pane>
 					<pane

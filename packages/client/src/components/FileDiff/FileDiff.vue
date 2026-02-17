@@ -1,5 +1,5 @@
 <template>
-	<div class="h-full flex flex-col">
+	<div class="file-diff">
 		<div class="flex items-center gap-2 p-2 pr-0">
 			<template v-if="file !== undefined">
 				<template v-if="['R', 'C'].includes(file.status)">
@@ -71,6 +71,7 @@
 				theme="custom"
 				@mount="onMountEditor"
 			/>
+
 			<div
 				v-if="show_no_changes_message || binary"
 				class="absolute inset-0 bg-gray-dark text-center pt-2"
@@ -469,3 +470,12 @@ export default {
 	},
 };
 </script>
+
+<style lang="scss">
+.file-diff {
+	.monaco-diff-editor {
+		height: 100%;
+		min-height: 500px;
+	}
+}
+</style>
