@@ -30,7 +30,7 @@
 			</svg>
 		</div>
 
-		<div class="list-container" :style="{ paddingTop: '0px' }">
+		<div class="list-container" :style="{paddingTop: '0px'}">
 			<CommitRow
 				v-for="commit in commits"
 				:key="commit.hash"

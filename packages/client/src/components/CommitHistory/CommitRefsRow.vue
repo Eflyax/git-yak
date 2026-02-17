@@ -3,35 +3,44 @@
 		class="commit-refs-row"
 		@click="printInfo"
 	>
-		{{commit.hash.substring(0, 3)}}
-		<!-- <div
+		<n-tag
 			v-for="reference in references"
-			:class="{
-				'cursor-pointer': reference.type !== 'head'
-			}"
-			:style="{
-				'background-color':
-					$settings.colors[commit.level % $settings.colors.length],
-			}"
+			:key="reference.id"
 			:title="getTitle(reference)"
-			@click="reference.type === 'head' ? {} : setSelectedReference(reference)"
 			@dblclick="checkoutBranch(reference)"
 		>
-			<icon
-				v-if="isCurrentBranch(reference)"
-				name="mdi-target"
-			/>
-			{{ reference.name }}
-			<icon
-				v-if="reference.type !== 'head'"
-				:name="$settings.icons[reference.type]"
-			/>
-		</div> -->
+			<template v-if="reference.type === 'branch'">
+				{{ reference.name }}
+				<icon name="mdi-source-branch" />
+				<icon
+					v-if="reference.isLocal"
+					name="mdi-laptop"
+					title="Local"
+				/>
+				<icon
+					v-if="reference.remotes.length > 0"
+					name="mdi-cloud-outline"
+					:title="`Remotes: ${reference.remotes.join(', ')}`"
+				/>
+			</template>
+			<template v-else>
+				{{ reference.name }}
+				<icon
+					v-if="reference.type !== 'head'"
+					:name="$settings.icons[reference.type]"
+				/>
+			</template>
+		</n-tag>
 	</div>
 </template>
 
 <script>
+import {NTag} from 'naive-ui';
+
 export default {
+	components: {
+		NTag
+	},
 	inject: [
 		'repo',
 		'hidden_references',
@@ -54,11 +63,53 @@ export default {
 					!this.hidden_references.has(ref.id) &&
 					(ref.type !== "head" || this.current_branch_name === null),
 			);
-			return _.sortBy(references, (ref) =>
-				this.isCurrentBranch(ref)
-					? -1
-					: settings.referenceTypeOrder.indexOf(ref.type),
-			);
+
+			const branchRefs = references.filter(ref => ref.type === 'local_branch' || ref.type === 'remote_branch');
+			const otherRefs = references.filter(ref => ref.type !== 'local_branch' && ref.type !== 'remote_branch');
+
+			const groupedBranches = _.groupBy(branchRefs, ref => {
+				if (ref.type === 'local_branch') {
+					return ref.name;
+				}
+				// remote_branch. name is like 'origin/master'. We want 'master'
+				const parts = ref.name.split('/');
+				return parts.slice(1).join('/');
+			});
+
+			const mergedBranches = Object.values(groupedBranches).map(group => {
+				const local = group.find(ref => ref.type === 'local_branch');
+				const remotes = group.filter(ref => ref.type === 'remote_branch');
+
+				if (!local && remotes.length === 0) return null;
+
+				const name = local ? local.name : remotes[0].name.split('/').slice(1).join('/');
+
+				return {
+					id: `branch:${name}`,
+					name: name,
+					type: 'branch', // My synthetic type
+					isLocal: !!local,
+					remotes: remotes.map(r => r.name.split('/')[0]),
+					representativeRef: local || remotes[0],
+				};
+			}).filter(Boolean);
+
+			const finalRefs = [...mergedBranches, ...otherRefs];
+
+			return _.sortBy(finalRefs, (ref) => {
+				const sortRef = ref.representativeRef || ref;
+				if (this.isCurrentBranch(sortRef)) {
+					return -1;
+				}
+
+				// Give 'branch' a sort order similar to 'local_branch'
+				let typeToSort = sortRef.type;
+				if (ref.type === 'branch') {
+					typeToSort = 'local_branch';
+				}
+
+				return settings.referenceTypeOrder.indexOf(typeToSort);
+			});
 		},
 	},
 	methods: {
@@ -67,6 +118,19 @@ export default {
 			console.log(this.references);
 		},
 		getTitle(reference) {
+			if (reference.type === 'branch') {
+				let title = 'Branch';
+				if (reference.isLocal) title += ' (local)';
+				if (reference.remotes.length > 0) title += ` (remotes: ${reference.remotes.join(', ')})`;
+
+				if (this.isCurrentBranch(reference.representativeRef)) {
+					title += " (current)";
+				} else if (reference.isLocal) {
+					title += "\n(double-click to checkout)";
+				}
+				return title;
+			}
+
 			let title = _.title(reference.type);
 
 			if (this.isCurrentBranch(reference)) {
@@ -79,13 +143,15 @@ export default {
 			return title;
 		},
 		async checkoutBranch(reference) {
+			const refToCheck = reference.type === 'branch' ? reference.representativeRef : reference;
+
 			if (
-				this.isCurrentBranch(reference) ||
-				reference.type !== "local_branch"
+				this.isCurrentBranch(refToCheck) ||
+				refToCheck.type !== "local_branch"
 			) {
 				return;
 			}
-			await this.repo.callGit("checkout", reference.name);
+			await this.repo.callGit("checkout", refToCheck.name);
 
 			await Promise.all([this.refreshHistory(), this.refreshStatus()]);
 		},

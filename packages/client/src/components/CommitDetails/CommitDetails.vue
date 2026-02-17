@@ -1,5 +1,8 @@
 <template>
-	<div v-if="files !== undefined">
+	<div
+		v-if="files !== undefined"
+		class="commit-details"
+	>
 		<split-pane
 			v-if="current_commits.length === 1 && commit.hash === 'WORKING_TREE'"
 			:dbl-click-splitter="false"
@@ -14,11 +17,12 @@
 				>
 					<pane
 						v-for="(area, i) in ['unstaged', 'staged']"
-						class="min-h-20"
 						:size="area === 'unstaged' ? unstaged_pane_size : undefined"
 					>
-						<div class="flex flex-col h-full">
+						<div class="commit-details-header">
+
 							<hr v-if="i > 0" class="mb-2" />
+
 							<div class="flex items-center gap-1 mb-2">
 								<div class="grow">
 									<span v-if="area === 'staged'">
