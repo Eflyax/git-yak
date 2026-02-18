@@ -8,9 +8,9 @@
 			:key="reference.id"
 			:title="getTitle(reference)"
 			@dblclick="checkoutBranch(reference)"
+			@click="setSelectedCommits([commit.hash])"
 			size="small"
 		>
-			{{isSelected}}
 			<template v-if="reference.type === 'branch'">
 				<icon name="mdi-source-branch" />
 				<icon
@@ -56,13 +56,18 @@ export default {
 		'isCurrentBranch',
 		'refreshHistory',
 		'refreshStatus',
-		'selected_commits'
+		'selected_commits',
+		'setSelectedCommits'
 	],
 	props: {
 		commit: {
 			type: Object,
 			default: null
 		},
+	},
+	data() {
+		return {
+		}
 	},
 	computed: {
 		references() {

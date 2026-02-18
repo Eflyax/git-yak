@@ -106,7 +106,6 @@
 				>
 					<CommitGraph
 						v-if="commits !== undefined"
-						:row_height
 						:scroll_position
 					/>
 				</pane>
@@ -196,9 +195,6 @@ export default {
 		CONFIG
 	}),
 	computed: {
-		row_height() {
-			return 40;
-		},
 		loaded_all() {
 			return (
 				this.current_commit_limit === null ||

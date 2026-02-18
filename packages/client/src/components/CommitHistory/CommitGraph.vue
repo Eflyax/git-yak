@@ -20,19 +20,19 @@
 
 					<template v-if="this.selected_commits.includes(commit.hash)">
 						<rect
-							:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - (getCommitRadius(commit) / 2) +5"
-							:y="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP  - (getCommitRadius(commit)*2)"
+							:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - (getCommitRadius(commit) / 2)"
+							:y="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP  - (getCommitRadius(commit))"
 							:width="svgDimensions.width"
-							:height="20"
-							fill-opacity="50%"
+							:height="CONFIG.CIRCLE_R * 2"
 							:fill="getColor(commit.level)"
+							fill-opacity="50%"
 						/>
 
 						<rect
 							:x="svgDimensions.width - 2"
-							:y="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP  - (getCommitRadius(commit)*2)"
+							:y="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP  - getCommitRadius(commit) - 3"
 							:width="2"
-							:height="20"
+							:height="CONFIG.Y_STEP - 3"
 							:fill="getColor(commit.level)"
 						/>
 					</template>
@@ -54,9 +54,6 @@
 				v-for="commit in commits"
 				:key="commit.hash"
 				:commit="commit"
-				:style="{
-					height: `${CONFIG.Y_STEP}px`
-				}"
 			/>
 		</div>
 
@@ -77,10 +74,6 @@ export default {
 		'selected_commits',
 	],
 	props: {
-		row_height: {
-			type: Number,
-			required: true
-		},
 		scroll_position: {
 			type: Number,
 			required: true
@@ -90,17 +83,6 @@ export default {
 		return {
 			CONFIG
 		}
-	},
-	watch: {
-		// commits() {
-		// 	this.draw();
-		// },
-		// scroll_position() {
-		// 	this.draw();
-		// },
-		// selected_commits() {
-		// 	this.draw();
-		// }
 	},
 	computed: {
 		commitMap() {
