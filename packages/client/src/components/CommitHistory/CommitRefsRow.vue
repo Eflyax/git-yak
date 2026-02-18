@@ -1,16 +1,17 @@
 <template>
-	<div
-		class="commit-refs-row"
-		@click="printInfo"
+	<div :class="[
+		'commit-refs-row',
+		isSelected ? 'active' : '']"
 	>
 		<n-tag
 			v-for="reference in references"
 			:key="reference.id"
 			:title="getTitle(reference)"
 			@dblclick="checkoutBranch(reference)"
+			size="small"
 		>
+			{{isSelected}}
 			<template v-if="reference.type === 'branch'">
-				{{ reference.name }}
 				<icon name="mdi-source-branch" />
 				<icon
 					v-if="reference.isLocal"
@@ -22,13 +23,19 @@
 					name="mdi-cloud-outline"
 					:title="`Remotes: ${reference.remotes.join(', ')}`"
 				/>
-			</template>
+				<span class="name">
+					{{ reference.name }}
+				</span>
+			 </template>
 			<template v-else>
-				{{ reference.name }}
 				<icon
 					v-if="reference.type !== 'head'"
 					:name="$settings.icons[reference.type]"
+					@click="printInfo(reference)"
 				/>
+				<span class="name">
+					{{ reference.name }}
+				</span>
 			</template>
 		</n-tag>
 	</div>
@@ -49,6 +56,7 @@ export default {
 		'isCurrentBranch',
 		'refreshHistory',
 		'refreshStatus',
+		'selected_commits'
 	],
 	props: {
 		commit: {
@@ -111,11 +119,15 @@ export default {
 				return settings.referenceTypeOrder.indexOf(typeToSort);
 			});
 		},
+		isSelected() {
+			return this.selected_commits.includes(this.commit.hash);
+		},
 	},
 	methods: {
-		printInfo() {
+		printInfo(reference) {
 			// console.log(this.commit);
-			console.log(this.references);
+			console.log(reference);
+
 		},
 		getTitle(reference) {
 			if (reference.type === 'branch') {

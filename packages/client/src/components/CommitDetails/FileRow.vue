@@ -130,7 +130,6 @@ export default {
 
 	&:hover {
 		background-color: colors.$secondary;
-		color: black;
 
 		.file-action {
 			display: inline-block;

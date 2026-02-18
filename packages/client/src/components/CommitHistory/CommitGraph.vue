@@ -18,6 +18,25 @@
 						/>
 					</template>
 
+					<template v-if="this.selected_commits.includes(commit.hash)">
+						<rect
+							:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - (getCommitRadius(commit) / 2) +5"
+							:y="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP  - (getCommitRadius(commit)*2)"
+							:width="svgDimensions.width"
+							:height="20"
+							fill-opacity="50%"
+							:fill="getColor(commit.level)"
+						/>
+
+						<rect
+							:x="svgDimensions.width - 2"
+							:y="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP  - (getCommitRadius(commit)*2)"
+							:width="2"
+							:height="20"
+							:fill="getColor(commit.level)"
+						/>
+					</template>
+
 					<circle
 						:cx="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP"
 						:cy="CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP"
@@ -186,7 +205,6 @@ export default {
 
 .graph-container {
 	flex-shrink: 0;
-	border-right: 1px solid #333;
 }
 
 .svg {

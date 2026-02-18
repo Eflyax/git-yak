@@ -111,8 +111,12 @@ svg {
 					cursor: pointer;
 					transition: background 0.2s;
 					box-sizing: border-box;
-				}
 
+					&.active {
+						background-color: colors.$secondary;
+						color: black;
+					}
+				}
 				.commit-row:hover {
 					background-color: #364352; //colors.$secondary;
 				}
@@ -149,7 +153,20 @@ svg {
 				display: flex;
 				align-items: center;
 				padding: 0 10px;
-				cursor: pointer;
+
+				&.active {
+					background-color: colors.$secondary;
+					color: black;
+				}
+
+				.n-tag {
+					cursor: pointer;
+
+					.name {
+
+					}
+
+				}
 			}
 		}
 

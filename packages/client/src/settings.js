@@ -8,9 +8,9 @@ export const icons = {
 };
 
 export const colors = [
-	'#2f6d8f',
-	'#5b7741',
-	'#8f693b',
+	'#30a0bf',
+	'#0f69f7',
+	'#8e02c2',
 	'#9f544c',
 	'#984c80',
 	'#77509b',

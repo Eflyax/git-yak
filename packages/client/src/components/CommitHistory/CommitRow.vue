@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="commit-row"
-		:class="active ? 'active' : '[&:not(:first-child)]:*:text-gray'"
+		:class="isSelected ? 'active' : '[&:not(:first-child)]:*:text-gray'"
 		@click="select"
 	>
 		<div v-if="commit.hash === ECommitHashes.WorkingTree" class="italic">
@@ -55,7 +55,7 @@ export default {
 		}
 	},
 	computed: {
-		active() {
+		isSelected() {
 			return this.selected_commits.includes(this.commit.hash);
 		},
 	},
