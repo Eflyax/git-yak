@@ -179,7 +179,7 @@ export default {
 .commit-browser {
 	display: flex;
 	font-family: 'Fira Code', monospace;
-	background-color: #1e1e1e;
+	background-color: #090a0b;
 	color: #d4d4d4;
 	overflow: auto;
 }

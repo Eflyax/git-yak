@@ -20,7 +20,7 @@ import * as monaco from 'monaco-editor';
 import * as settings from './settings';
 import './styles/global.scss';
 import 'splitpanes/dist/splitpanes.css';
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 window._ = _;
 window.settings = settings;

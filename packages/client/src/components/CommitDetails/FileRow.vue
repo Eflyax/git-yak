@@ -6,7 +6,6 @@
 			(['R', 'C'].includes(file.status) ? `${file.old_path} -> ` : '') +
 			file.path
 		"
-		@click="selected_file = file"
 	>
 	 	<file-status
 			:status="file.status"
@@ -14,12 +13,36 @@
 
 		<file-path
 			:path="file.path"
+			@click="selected_file = file"
 		/>
 
 		<div
 			class="file-row-actions"
 		>
-			<btn
+			<template v-if="file.area === 'staged'">
+				<n-button
+					class="file-action"
+					type="error"
+					size="tiny"
+					secondary
+					@click="run('unstage')"
+				>
+					Untage file
+				</n-button>
+			</template>
+			<template v-else>
+				<n-button
+					class="file-action"
+					type="success"
+					size="tiny"
+					secondary
+					@click="run('stage')"
+				>
+					Stage file
+				</n-button>
+			</template>
+
+			<!-- <btn
 				v-for="action in file.area === 'unstaged'
 					? ['discard', 'stage']
 					: file.area === 'staged'
@@ -32,13 +55,18 @@
 				<icon
 					:name="$settings.icons[action]"
 				/>
-			</btn>
+			</btn> -->
 		</div>
 	</div>
 </template>
 
 <script>
+import {NButton} from 'naive-ui';
+
 export default {
+	components: {
+		NButton
+	},
 	inject: [
 		'repo',
 		'selected_file',
@@ -96,9 +124,17 @@ export default {
 	height: 30px;
 	padding: 0 5px;
 
+	.file-action {
+		display: none;
+	}
+
 	&:hover {
 		background-color: colors.$secondary;
 		color: black;
+
+		.file-action {
+			display: inline-block;
+		}
 	}
 
 	&.active {

@@ -21,31 +21,56 @@
 					>
 						<div class="commit-details-header">
 
+							<template v-if="area === 'unstaged'">
+								<n-button
+
+									type="error"
+									:disabled="files[area].length === 0"
+									@click="run('discard')"
+								>
+									<template #icon>
+										<icon
+											:name="$settings.icons.discard"
+										/>
+									</template>
+								</n-button>
+								<br>
+								<br>
+							</template>
+
 							<hr v-if="i > 0" class="mb-2" />
 
-							<div class="flex items-center gap-1 mb-2">
-								<div class="grow">
-									<span v-if="area === 'staged'">
-										Staged files
-									</span>
-									<span v-else>
-										Unstaged files
-									</span>
+							<div class="actions">
+								<div class="area-title">
+									<template v-if="area === 'unstaged'">
+										<span>Unstaged files</span>
+
+										<n-button
+											type="success"
+											size="tiny"
+											secondary
+											:disabled="files[area].length === 0"
+											@click="run('stage')"
+										>
+											Stage all changes
+										</n-button>
+									</template>
+									<template v-else>
+										<span>Staged files</span>
+
+										 <n-button
+											type="error"
+											size="tiny"
+											secondary
+											:disabled="files[area].length === 0"
+											@click="run('unstage')"
+										>
+											Unstage all changes
+										</n-button>
+									</template>
 								</div>
-
-								<btn
-									v-for="action in area === 'unstaged'
-										? ['discard', 'stage']
-										: ['unstage']"
-									:click_twice="action === 'discard' && 'text-red'"
-									:disabled="files[area].length === 0"
-									@click="run(action)"
-								>
-									<icon :name="$settings.icons[action]" class="size-5" />
-									{{ $_.title(action) }} all
-								</btn>
-
 							</div>
+
 							<recycle-scroller
 								class="grow"
 								:items="files[area]"
@@ -61,7 +86,9 @@
 			</pane>
 
 			<pane :size="commit_pane_size" class="min-h-24 flex flex-col gap-2">
-				<div v-if="current_operation?.conflict">Conflict:</div>
+				<div v-if="current_operation?.conflict">
+					Conflict:
+				</div>
 				<div v-else class="flex items-center gap-3 justify-end">
 					<label>
 						<input v-model="amend" type="checkbox" />
@@ -267,13 +294,20 @@ import BranchModal from "./BranchModal.vue";
 import CommitterDetails from "./CommitterDetails.vue";
 import FileRow from "./FileRow.vue";
 import TagModal from "./TagModal.vue";
+import {NButton} from 'naive-ui';
 
 export default {
 	mixins: [
 		StoreMixin("unstaged_pane_size", 50),
 		StoreMixin("commit_pane_size", 15),
 	],
-	components: { BranchModal, CommitterDetails, FileRow, TagModal },
+	components: {
+		BranchModal,
+		CommitterDetails,
+		FileRow,
+		NButton,
+		TagModal
+	},
 	inject: [
 		"repo",
 		"commits",

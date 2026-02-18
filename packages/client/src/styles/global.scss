@@ -143,6 +143,7 @@ svg {
 		.list-branches {
 			flex-grow: 1;
 			min-width: 0;
+			background-color: #090a0b;
 
 			.commit-refs-row {
 				display: flex;
@@ -153,9 +154,16 @@ svg {
 		}
 
 		.commit-details {
-			border: 2px solid gold;
+			.commit-details-header {
+				.actions {
+					margin-bottom: 5px;
+
+					.area-title {
+						display: flex;
+						justify-content: space-between;
+					}
+				}
+			}
 		}
-
-
 	}
 }
