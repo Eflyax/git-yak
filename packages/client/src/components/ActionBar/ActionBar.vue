@@ -1,20 +1,24 @@
 <template>
-	<div class="flex items-center gap-2 justify-center">
+	<div class="action-bar">
 		<div v-if="current_operation?.conflict" class="text-gray italic">
 			Functionality limited during conflict
 		</div>
+
 		<template v-for="action in actions">
-			<hr v-if="action.separator" class="mx-1" />
-			<btn
-				v-else
+			<n-button
+				strong
+				type="info"
 				:click_twice="action.click_twice ? 'text-accent' : false"
 				:disabled="action.disabled"
 				:title="action.title"
 				@click="action.callback"
+				:class="action.class"
 			>
-				<icon :name="action.icon" class="size-6" />
-				{{ action.label }}
-			</btn>
+				<template #icon>
+					<icon :name="action.icon" class="size-6" />
+				</template>
+				 <!-- {{ action.label }} -->
+			</n-button>
 		</template>
 
 		<BranchModal v-if="show_branch_modal" @close="show_branch_modal = false" />
@@ -24,11 +28,14 @@
 <script>
 import WindowEventMixin from "@/mixins/WindowEventMixin";
 import { restoreWip } from "@/utils/actions";
-
 import BranchModal from "./BranchModal.vue";
+import {NButton} from 'naive-ui';
 
 export default {
-	components: { BranchModal },
+	components: {
+		BranchModal,
+		NButton
+	},
 	mixins: [WindowEventMixin("keydown", "onKeyDown")],
 	inject: [
 		"tab_active",
@@ -69,43 +76,60 @@ export default {
 							},
 							{
 								icon: "mdi-archive-arrow-down-outline",
-								label: "Save WIP",
-								callback: this.saveWip,
+								label: "Stash",
+								callback: this.saveStash,
 								disabled: this.uncommitted_file_count === 0,
 							},
+							// {
+							// 	icon: "mdi-archive-arrow-down-outline",
+							// 	label: "Save WIP",
+							// 	callback: this.saveWip,
+							// 	disabled: this.uncommitted_file_count === 0,
+							// },
 							{
 								icon: "mdi-archive-arrow-up-outline",
-								label: "Restore WIP",
+								label: "Pop stahs",
 								title:
 									this.last_wip_branch === undefined
 										? ""
 										: `Will restore ${this.last_wip_branch.name}`,
-								callback: this.restoreWip,
-								disabled: this.last_wip_branch === undefined,
+								callback: this.popStash,
+								disabled: false, //this.last_wip_branch === undefined,
 							},
-							{
-								icon: "mdi-check-all",
-								label:
-									"Quick amend" +
-									(this.current_operation?.type === "rebase"
-										? " & proceed"
-										: ""),
-								title:
-									"Stage all changes and amend the last commit (skipping hooks)" +
-									(this.current_operation?.type === "rebase"
-										? ", then proceed with the rebase"
-										: ""),
-								callback: this.amendCommit,
-								disabled: this.uncommitted_file_count === 0,
-							},
+							// {
+							// 	icon: "mdi-archive-arrow-up-outline",
+							// 	label: "Restore WIP",
+							// 	title:
+							// 		this.last_wip_branch === undefined
+							// 			? ""
+							// 			: `Will restore ${this.last_wip_branch.name}`,
+							// 	callback: this.restoreWip,
+							// 	disabled: this.last_wip_branch === undefined,
+							// },
+							// {
+							// 	icon: "mdi-check-all",
+							// 	label:
+							// 		"Quick amend" +
+							// 		(this.current_operation?.type === "rebase"
+							// 			? " & proceed"
+							// 			: ""),
+							// 	title:
+							// 		"Stage all changes and amend the last commit (skipping hooks)" +
+							// 		(this.current_operation?.type === "rebase"
+							// 			? ", then proceed with the rebase"
+							// 			: ""),
+							// 	callback: this.amendCommit,
+							// 	disabled: this.uncommitted_file_count === 0,
+							// },
 						]),
-				{
-					separator: true,
-				},
+				// {
+				// 	separator: true,
+				// },
 				{
 					icon: "mdi-console",
 					label: "Open terminal",
 					title: "(Alt+T)",
+					class: 'open-console',
 					callback: this.repo.openTerminal,
 				},
 				...(this.config?.custom_actions
@@ -123,32 +147,46 @@ export default {
 		},
 	},
 	methods: {
-		async saveWip() {
-			await this.saveSelectedFile();
-
-			// https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
-			const formatted_time = new Date().toLocaleString("sv").replace(/\D/g, "");
+		async saveStash() {
 			await Promise.all([
-				this.repo.callGit(
-					"checkout",
-					"-b",
-					settings.wip_prefix + formatted_time,
-				),
-				this.repo.callGit("add", "--all"),
+				this.refreshHistory(),
+				this.refreshStatus(),
+				this.repo.callGit('stash')
 			]);
-			await this.repo.callGit("commit", "--message", "WIP", "--no-verify");
-			await this.repo.callGit(
-				"checkout",
-				this.current_branch_name ?? this.current_head,
-			);
-
-			await Promise.all([this.refreshHistory(), this.refreshStatus()]);
 		},
-		async restoreWip() {
-			await this.saveSelectedFile();
-
-			await restoreWip.call(this, this.last_wip_branch);
+		async popStash() {
+			await Promise.all([
+				this.refreshHistory(),
+				this.refreshStatus(),
+				this.repo.callGit('stash', 'pop')
+			]);
 		},
+		// async saveWip() {
+		// 	await this.saveSelectedFile();
+
+		// 	// https://stackoverflow.com/questions/17415579/how-to-iso-8601-format-a-date-with-timezone-offset-in-javascript
+		// 	const formatted_time = new Date().toLocaleString("sv").replace(/\D/g, "");
+		// 	await Promise.all([
+		// 		this.repo.callGit(
+		// 			"checkout",
+		// 			"-b",
+		// 			settings.wip_prefix + formatted_time,
+		// 		),
+		// 		this.repo.callGit("add", "--all"),
+		// 	]);
+		// 	await this.repo.callGit("commit", "--message", "WIP", "--no-verify");
+		// 	await this.repo.callGit(
+		// 		"checkout",
+		// 		this.current_branch_name ?? this.current_head,
+		// 	);
+
+		// 	await Promise.all([this.refreshHistory(), this.refreshStatus()]);
+		// },
+		// async restoreWip() {
+		// 	await this.saveSelectedFile();
+
+		// 	await restoreWip.call(this, this.last_wip_branch);
+		// },
 		async amendCommit() {
 			await this.saveSelectedFile();
 			try {

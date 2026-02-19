@@ -1,6 +1,6 @@
 export const electronMock = {
 	openRepo(): string {
-		return localStorage.getItem('repoPath') || '.';;
+		return localStorage.getItem('repoPath') || '.';
 	},
 	addListener(name: string) {
 		console.log('Adding listener', name);

@@ -40,15 +40,17 @@ export default {
 		mousedown_target: null,
 	}),
 	mounted() {
-		console.log({'this.$refs': this.$refs});
-
-		this.modal.focus();
-		this.modal
-			.querySelector(
-				"input:not([type=checkbox]):not([disabled]), textarea:not([disabled])",
-			)
-			?.focus();
-
+		if (this.modal) {
+			this.modal.focus();
+			this.modal
+				.querySelector(
+					"input:not([type=checkbox]):not([disabled]), textarea:not([disabled])",
+				)
+				?.focus();
+		}
+		else {
+			console.error('modal is "null"');
+		}
 		if (document.body.style.overflow !== "hidden") {
 			// https://stackoverflow.com/questions/8079187/how-to-calculate-the-width-of-the-scroll-bar/56283274
 			const scrollbar_width = window.innerWidth - document.body.clientWidth;

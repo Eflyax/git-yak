@@ -19,6 +19,25 @@
 		<template v-else>
 			 <!-- <ActionBar /> -->
 			<div class="main-content">
+				<div class="content-toolbar">
+					<div class="meta">
+						<span>
+							  {{ repoPath?.split('/').pop() }}
+						</span>
+
+						<span>
+							<icon name="mdi-source-branch" />
+							{{ current_branch_name }}
+						</span>
+					</div>
+					<div class="controls">
+						<action-bar />
+					</div>
+					<div class="account">
+						<span>{{ 'name' }}</span>
+						<span>{{ 'email' }}</span>
+					</div>
+				</div>
 				<splitpanes style="height: 500px;" >
 					<pane
 						class="left"
@@ -161,6 +180,7 @@ export default {
 				working_tree_files: undefined,
 				selected_file: null,
 				save_semaphore: Promise.resolve(),
+				repoPath: undefined
 			}),
 			computed: {
 				tab_active() {
@@ -350,12 +370,11 @@ export default {
 			deep: true,
 		},
 	},
-	mounted() {
-		this.openRepo();
+	async mounted() {
+		this.repoPath = await this.openRepo();
 	},
 	methods: {
 		async openRepo() {
-			// let path = await electron.openRepo();
 			let path = await window.electron.openRepo();
 
 			if (path !== undefined) {
@@ -363,15 +382,9 @@ export default {
 				this.repo_details.path = path;
 				this.repo_details.title ??= path.slice(path.lastIndexOf("/") + 1);
 			}
+
+			return path;
 		},
 	},
 };
 </script>
-<style scoped lang="scss">
-
-.main-content {
-	border: 2px solid white;
-	border-radius: 4px;
-	padding: 10px;
-}
-</style>

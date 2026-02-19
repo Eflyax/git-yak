@@ -39,8 +39,9 @@
 						/>
 					</template>
 
-					<g v-if="commit.isStash">
+					<!-- <g v-if="commit.isStash"> -->
 						<rect
+							v-if="commit.isStash"
 							:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - (CONFIG.CIRCLE_R * 1)"
 							:y="(CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP) - rowMarginBottom - (CONFIG.CIRCLE_R * 1)"
 							:width="CONFIG.CIRCLE_R * 2"
@@ -57,7 +58,7 @@
 							:height="CONFIG.CIRCLE_R * 2"
 							:fill="getColor(commit.level)"
 						/> -->
-					</g>
+					<!-- </g> -->
 					<circle
 						v-else
 						:cx="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP"
@@ -254,7 +255,8 @@ export default {
 <style scoped>
 .commit-browser {
 	display: flex;
-	font-family: 'Fira Code', monospace;
+	font-family: -apple-system, "system-ui", sans-serif;
+	/*font-family: 'Fira Code', monospace;*/
 	background-color: #090a0b;
 	color: #d4d4d4;
 	overflow: auto;

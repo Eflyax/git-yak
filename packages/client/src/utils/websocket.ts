@@ -29,6 +29,7 @@ export class WebSocketClient {
 						resolve(response.data);
 					}
 					else {
+						console.error("Received error from server:", response);
 						reject(new Error(response.message));
 					}
 					this.pendingRequests.delete(response.requestId);
