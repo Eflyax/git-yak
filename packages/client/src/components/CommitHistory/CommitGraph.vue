@@ -67,6 +67,7 @@
 <script>
 import CommitRow from './CommitRow.vue';
 import {CONFIG} from '@/settings';
+import {useStash} from '@/composables/useStash';
 
 export default {
 	components: {
@@ -83,8 +84,16 @@ export default {
 			required: true
 		},
 	},
+	setup() {
+		const {stashes} = useStash();
+
+		return {
+			stashes
+		};
+	},
 	data() {
 		return {
+			commitsToRender: [],
 			CONFIG,
 			rowMarginBottom: 5 / 1
 		}
@@ -109,9 +118,43 @@ export default {
 		}
 	},
 	mounted() {
-		// console.log(this.commits);
+		// todo
+		// this.mergeStashesToCommits();
 	},
 	methods: {
+		mergeStashesToCommits() {
+			const result = [].concat(this.commits);
+			const stashArray = Object.values(this.stashes);
+
+			stashArray.forEach(stash => {
+					const parentIndex = result.findIndex(c => c.hash === stash.parentHash);
+
+					if (parentIndex !== -1) {
+							const parent = result[parentIndex];
+
+							const stashCommit = {
+									hash: stash.hash,
+									hash_abbr: stash.id.replace(/"/g, ''),
+									parents: [stash.parentHash],
+									subject: stash.message.replace(/"/g, ''),
+									body: "Git Stash",
+									author_name: "Stash",
+									author_date: "",
+									isStash: true,
+									level: parent.level + 1,
+									references: []
+							};
+
+						 result.splice(parentIndex, 0, stashCommit);
+					}
+			});
+
+			result.forEach((commit, i) => {
+					commit.index = i;
+			});
+
+			this.commitsToRender = result;
+		},
 		printCommit(commit) {
 			console.log(commit);
 		},
