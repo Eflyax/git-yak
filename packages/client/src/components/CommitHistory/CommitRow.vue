@@ -17,10 +17,12 @@
 					:key="status"
 					class="working-tree-files"
 				>
-					<file-status
-						:status="status"
-					/>
-					{{ count }}
+					<template v-if="count">
+						<file-status
+							:status="status"
+						/>
+						{{ count }}
+					</template>
 				</div>
 			</template>
 		</div>

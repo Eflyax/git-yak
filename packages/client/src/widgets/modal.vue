@@ -23,16 +23,27 @@
 </template>
 
 <script>
+import { useTemplateRef } from 'vue';
+
 export default {
 	inject: ["tab_active"],
 	emits: ["close"],
+	setup() {
+		const modal = useTemplateRef('modal');
+
+		return {
+			modal
+		};
+	},
 	data: () => ({
 		body_css: document.body.style.cssText,
 		mousedown_target: null,
 	}),
 	mounted() {
-		this.$refs.modal.focus();
-		this.$refs.modal
+		console.log({'this.$refs': this.$refs});
+
+		this.modal.focus();
+		this.modal
 			.querySelector(
 				"input:not([type=checkbox]):not([disabled]), textarea:not([disabled])",
 			)

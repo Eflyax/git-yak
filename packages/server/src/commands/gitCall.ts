@@ -6,7 +6,10 @@ export const run = async (ws, data) => {
 		// Note: The original implementation had an 'as_buffer' option.
 		// This implementation decodes stdout as a UTF-8 string for now.
 		//
-		// console.log(args);
+		console.log();
+		console.log();
+		console.log();
+		console.log({git: args});
 
 		const proc = Bun.spawn(['git', ...args], {
 			cwd: repo_path,
@@ -31,8 +34,6 @@ export const run = async (ws, data) => {
 	while (true) {
 		try {
 			const result = await executeGit();
-
-			console.log(result);
 
 			ws.send(JSON.stringify({ requestId, status: 'success', data: result }));
 			break;

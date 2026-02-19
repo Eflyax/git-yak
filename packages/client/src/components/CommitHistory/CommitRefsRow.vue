@@ -173,15 +173,30 @@ export default {
 			return title;
 		},
 		async checkoutBranch(reference) {
-			const refToCheck = reference.type === 'branch' ? reference.representativeRef : reference;
+			const
+				refToCheck = reference.type === 'branch'
+					? reference.representativeRef
+					: reference;
 
-			if (
-				this.isCurrentBranch(refToCheck) ||
-				refToCheck.type !== "local_branch"
-			) {
-				return;
-			}
-			await this.repo.callGit("checkout", refToCheck.name);
+			// if (
+			// 	this.isCurrentBranch(refToCheck) ||
+			// 	refToCheck.type !== "local_branch"
+			// ) {
+			// 	console.log({
+			// 		refToCheck: {
+			// 			refToCheck
+			// 		}
+			// 	})
+			// 	return;
+			// }
+			// await this.repo.callGit("checkout", refToCheck.name);
+
+			//
+			//
+			//
+			await this.repo.callGit('fetch', 'origin');
+			await this.repo.callGit('checkout', refToCheck.name);
+			await this.repo.callGit('reset', '--hard', `origin/${refToCheck.name}`);
 
 			await Promise.all([this.refreshHistory(), this.refreshStatus()]);
 		},
