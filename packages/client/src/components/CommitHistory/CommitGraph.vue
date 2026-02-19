@@ -39,16 +39,25 @@
 						/>
 					</template>
 
-					<rect
-						v-if="commit.isStash"
-						:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - (CONFIG.CIRCLE_R * 1)"
-						:y="(CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP) - rowMarginBottom - (CONFIG.CIRCLE_R * 1)"
-						:width="CONFIG.CIRCLE_R * 2"
-						:height="CONFIG.CIRCLE_R * 2"
-						:stroke="getColor(commit.level)"
-						:stroke-width="CONFIG.LINE_WIDTH"
-						:stroke-dasharray="[2]"
-					/>
+					<g v-if="commit.isStash">
+						<rect
+							:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - (CONFIG.CIRCLE_R * 1)"
+							:y="(CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP) - rowMarginBottom - (CONFIG.CIRCLE_R * 1)"
+							:width="CONFIG.CIRCLE_R * 2"
+							:height="CONFIG.CIRCLE_R * 2"
+							:stroke="getColor(commit.level)"
+							:stroke-width="CONFIG.LINE_WIDTH"
+							:stroke-dasharray="[2]"
+						/>
+						<!-- <image
+							:href="archiveOutline"
+							:x="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - CONFIG.CIRCLE_R"
+							:y="(CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP) - rowMarginBottom - CONFIG.CIRCLE_R"
+							:width="CONFIG.CIRCLE_R * 2"
+							:height="CONFIG.CIRCLE_R * 2"
+							:fill="getColor(commit.level)"
+						/> -->
+					</g>
 					<circle
 						v-else
 						:cx="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP"
@@ -79,10 +88,13 @@
 import CommitRow from './CommitRow.vue';
 import {CONFIG} from '@/settings';
 import {useStash} from '@/composables/useStash';
+// import * as archiveOutline from '@/assets/svg/archive-outline.svg';
+import archiveOutline from '@/assets/svg/archive-outline.svg?url';
 
 export default {
 	components: {
-		CommitRow
+		CommitRow,
+		archiveOutline
 	},
 	inject: [
 		'commits',
@@ -104,6 +116,7 @@ export default {
 	},
 	data() {
 		return {
+			// archiveOutline,
 			commitsToRender: [],
 			CONFIG,
 			rowMarginBottom: 5 / 1
