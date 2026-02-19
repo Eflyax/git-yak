@@ -4,7 +4,7 @@
 		:class="isSelected ? 'active' : '[&:not(:first-child)]:*:text-gray'"
 		@click="select"
 	>
-		<div v-if="commit.hash === ECommitHashes.WorkingTree" class="italic">
+		<div v-if="commit.hash === ECommitHashes.WorkingTree">
 			<template v-if="current_operation !== null">
 				[{{ current_operation.label }}]
 			</template>
@@ -12,7 +12,16 @@
 				Working tree clean
 			</template>
 			<template v-else>
-				Uncommitted files ({{ uncommitted_file_count }})
+				<div
+					v-for="(count, status) in workingTreeFileStatuses"
+					:key="status"
+					class="working-tree-files"
+				>
+					<file-status
+						:status="status"
+					/>
+					{{ count }}
+				</div>
 			</template>
 		</div>
 		<template v-else>
@@ -40,6 +49,7 @@ export default {
 		'selected_commits',
 		'current_operation',
 		'uncommitted_file_count',
+		'working_tree_files',
 		'selected_file',
 		'setSelectedCommits',
 	],
@@ -58,6 +68,29 @@ export default {
 		isSelected() {
 			return this.selected_commits.includes(this.commit.hash);
 		},
+		workingTreeFileStatuses() {
+			const result = {
+				'M': 0,
+				'A': 0,
+				'D': 0
+			};
+
+			for (const treeStatus of ['staged', 'unstaged']) {
+				for (const file of this.working_tree_files[treeStatus]) {
+					if (file.status === 'M') {
+						result['M']++;
+					}
+					else if (file.status === 'D') {
+						result['D']++;
+					}
+					else if (file.status === 'A') {
+						result['A']++;
+					}
+				}
+			}
+
+			return result;
+		}
 	},
 	methods: {
 		select(event) {

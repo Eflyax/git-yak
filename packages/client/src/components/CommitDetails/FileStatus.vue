@@ -1,5 +1,5 @@
 <template>
-	<div class="file-status">
+	<span class="file-status">
 		<icon
 			v-if="status === 'M'"
 			name="mdi-pencil"
@@ -15,7 +15,7 @@
 			name="mdi-minus"
 			class="deleted"
 		/>
-	</div>
+	</span>
 </template>
 
 <script>
@@ -31,8 +31,9 @@ export default {
 
 <style>
 .file-status {
-	margin-top: 5px;
-	width: 13px;
+	/*display: inline;*/
+	/*margin-top: 5px;
+	width: 13px;*/
 
 	.modified {
 		fill: #FFC107;

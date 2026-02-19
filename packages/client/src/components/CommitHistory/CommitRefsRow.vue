@@ -1,15 +1,22 @@
 <template>
 	<div :class="[
 		'commit-refs-row',
-		isSelected ? 'active' : '']"
+		isSelected ? 'active' : ''
+	]"
 	>
-		<n-tag
+		<div
 			v-for="reference in references"
 			:key="reference.id"
 			:title="getTitle(reference)"
 			@dblclick="checkoutBranch(reference)"
 			@click="setSelectedCommits([commit.hash])"
-			size="small"
+			:style="{
+				backgroundColor: getColor(commit.level),
+			}"
+			:class="[
+				'tag',
+				 commit.hash == current_head ? 'active' : ''
+			]"
 		>
 			<template v-if="reference.type === 'branch'">
 				<icon name="mdi-source-branch" />
@@ -37,12 +44,13 @@
 					{{ reference.name }}
 				</span>
 			</template>
-		</n-tag>
+		</div>
 	</div>
 </template>
 
 <script>
 import {NTag} from 'naive-ui';
+import {CONFIG} from '@/settings';
 
 export default {
 	components: {
@@ -57,7 +65,8 @@ export default {
 		'refreshHistory',
 		'refreshStatus',
 		'selected_commits',
-		'setSelectedCommits'
+		'setSelectedCommits',
+		'current_head'
 	],
 	props: {
 		commit: {
@@ -67,6 +76,7 @@ export default {
 	},
 	data() {
 		return {
+			CONFIG
 		}
 	},
 	computed: {
@@ -129,6 +139,9 @@ export default {
 		},
 	},
 	methods: {
+		getColor(level) {
+			return CONFIG.COLORS[level % CONFIG.COLORS.length];
+		},
 		printInfo(reference) {
 			// console.log(this.commit);
 			console.log(reference);

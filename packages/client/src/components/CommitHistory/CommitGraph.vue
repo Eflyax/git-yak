@@ -13,10 +13,11 @@
 						:width="svgDimensions.width"
 						:height="CONFIG.Y_STEP - rowMarginBottom"
 						:fill="getColor(commit.level)"
-						:fill-opacity="this.selected_commits.includes(commit.hash) ? '75%' : '10%'"
+						:fill-opacity="this.selected_commits.includes(commit.hash) ? '50%' : '10%'"
 					/>
 
 					<rect
+						v-if="commit.hash !== 'WORKING_TREE'"
 						:x="svgDimensions.width - 2"
 						:y="commit.index * CONFIG.Y_STEP  "
 						:width="2"
@@ -32,6 +33,7 @@
 							:d="getTopologyPath(commit, parentHash)"
 							:stroke="getColor(commit.level)"
 							:stroke-width="CONFIG.LINE_WIDTH"
+							:stroke-dasharray="commit.hash === 'WORKING_TREE' ? [2] : undefined"
 							fill="none"
 							opacity="0.9"
 						/>
@@ -41,8 +43,9 @@
 						:cx="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP"
 						:cy="(CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP) - rowMarginBottom"
 						:r="getCommitRadius(commit)"
-						:fill="getColor(commit.level)"
-						stroke="#1e1e1e"
+						:fill="commit.hash === 'WORKING_TREE' ? '' : getColor(commit.level)"
+						:stroke="commit.hash === 'WORKING_TREE' ? getColor(commit.level) : '#1e1e1e'"
+						:stroke-dasharray="commit.hash === 'WORKING_TREE' ? [2] : undefined"
 						stroke-width="2"
 					/>
 				</g>
@@ -54,6 +57,7 @@
 				v-for="commit in commits"
 				:key="commit.hash"
 				:commit="commit"
+				@click="printCommit(commit)"
 			/>
 		</div>
 
@@ -108,6 +112,9 @@ export default {
 		// console.log(this.commits);
 	},
 	methods: {
+		printCommit(commit) {
+			console.log(commit);
+		},
 		getCommitRadius(commit) {
 			const
 				radiusDivider = commit.parents.length > 1 ? 2 : 1;
@@ -188,6 +195,7 @@ export default {
 
 .graph-container {
 	flex-shrink: 0;
+	cursor: pointer;
 }
 
 .svg {

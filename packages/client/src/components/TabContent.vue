@@ -245,6 +245,9 @@ export default {
 					return this.references_by_type.head[0].hash;
 				},
 				uncommitted_file_count() {
+
+					console.log({'this.working_tree_files': this.working_tree_files});
+
 					if (this.working_tree_files === undefined) {
 						return 0;
 					}

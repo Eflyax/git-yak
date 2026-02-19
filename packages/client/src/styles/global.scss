@@ -88,7 +88,6 @@ svg {
 		}
 
 		.commit-history {
-			border: 1px solid colors.$tertiary;
 			max-height: 95%;
 			overflow-y: auto;
 
@@ -111,9 +110,20 @@ svg {
 					cursor: pointer;
 					transition: background 0.2s;
 					box-sizing: border-box;
-					/*  */
 					height: 22px;
 					margin-bottom: 5px;
+
+					.working-tree-files {
+						display: inline;
+						color: #FFF;
+						margin-right: 5px;
+
+						svg {
+							width: 16px;
+							height: 16px;
+							margin-top: 7px;
+						}
+					}
 
 					&.active {
 						background-color: colors.$secondary;
@@ -158,16 +168,20 @@ svg {
 				padding: 0 10px;
 				height: 27px !important;
 
-				&.active {
-					background-color: colors.$secondary;
-					color: black;
-				}
-
-				.n-tag {
+				.tag {
 					cursor: pointer;
+					height: 22px;
+					overflow: hidden;
+					border-radius: 2px;
+					padding: 1px 5px;
+					/* width: 100%; */
+					display: inline-flex;
+					text-overflow: ellipsis;
+					opacity: 0.5;
 
-					.name {
-
+					&.active {
+						opacity: 1;
+						border: 1px solid #FFF;
 					}
 
 				}
