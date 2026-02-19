@@ -255,7 +255,6 @@ export default {
 		},
 		async loadHistory({ skip_references = false, limit } = {}) {
 			if (!skip_references) {
-				// https://stackoverflow.com/questions/1862423/how-to-tell-which-commit-a-tag-points-to-in-git
 				const
 					summary = await this.repo.callGit(
 						'for-each-ref',
@@ -269,38 +268,48 @@ export default {
 				}
 
 				for (const line of _.filter(summary.split("\n"))) {
-					const [id, date, ...hashes] = line.split(" ");
-					const name = id.split("/").slice(2).join("/");
-					const hash = hashes[1] || hashes[0];
 					let type;
+
+					const
+						[id, date, ...hashes] = line.split(" "),
+						name = id.split("/").slice(2).join("/"),
+						hash = hashes[1] || hashes[0];
 
 					if (id.startsWith("refs/tags/")) {
 						type = "tag";
-					} else if (id.startsWith("refs/heads/")) {
+					}
+					else if (id.startsWith("refs/heads/")) {
 						type = "local_branch";
-					} else if (id.startsWith("refs/remotes/") && !id.endsWith("/HEAD")) {
+					}
+					else if (id.startsWith("refs/remotes/") && !id.endsWith("/HEAD")) {
 						type = "remote_branch";
-					} else {
+					}
+					else {
 						continue;
 					}
 					references_by_type[type] ??= [];
 					references_by_type[type].push({ type, name, id, date, hash });
 				}
 				references_by_type.tag?.reverse();
-				const references = Object.values(references_by_type).flat();
 
-				const readFile = await this.repo.readFile(".git/HEAD");
-
-				console.log({ readFile });
+				const
+					references = Object.values(references_by_type).flat(),
+					readFile = await this.repo.readFile(".git/HEAD"),
+					prefix = "ref: refs/heads/";
 
 				let head = readFile.trim();
-				const prefix = "ref: refs/heads/";
 
 				if (head.startsWith(prefix)) {
-					const name = head.slice(prefix.length);
-					head = _.find(references, { type: "local_branch", name }).hash;
+					const
+						name = head.slice(prefix.length);
+
+					head = _.find(references, {
+						type: 'local_branch',
+						name
+					}).hash;
 					this.current_branch_name = name;
-				} else {
+				}
+				else {
 					this.current_branch_name = null;
 				}
 				references.push({ type: "head", name: "HEAD", id: "HEAD", hash: head });
@@ -317,20 +326,21 @@ export default {
 					this.setSelectedReference(reference ?? null);
 				}
 			}
-			// https://git-scm.com/docs/git-log#_pretty_formats
-			const format = {
-				hash: "%H",
-				parents: "%P",
-				subject: "%s",
-				body: "%b",
-				author_email: "%ae",
-				author_name: "%an",
-				author_date: "%ad",
-				committer_email: "%ce",
-				committer_name: "%cn",
-				committer_date: "%cd",
-			};
-			const excluded_references = [...this.hidden_references, "refs/stash"];
+
+			const
+				format = {
+					hash: '%H',
+					parents: '%P',
+					subject: '%s',
+					body: '%b',
+					author_email: '%ae',
+					author_name: '%an',
+					author_date: '%ad',
+					committer_email: '%ce',
+					committer_name: '%cn',
+					committer_date: '%cd',
+				},
+				excluded_references = [...this.hidden_references, 'refs/stash'];
 
 			if (limit === undefined) {
 				limit =
@@ -340,48 +350,50 @@ export default {
 
 				if (limit !== null) {
 					const scroller = this.$refs.main_scroller;
+
 					if (scroller !== undefined) {
 						const state = scroller.getScroll();
+
 						while ((limit + 1) * scroller.itemSize < state.end) {
 							limit *= commit_limit_multiplier;
 						}
 					}
 				}
 			}
-			const log = await this.repo.callGit(
-				"log",
-				..._.map(excluded_references, (id) => `--exclude=${id}`),
-				"--all",
-				"-z",
-				"--pretty=format:" + Object.values(format).join(field_separator),
-				"--date=format-local:%Y-%m-%d %H:%M", // https://stackoverflow.com/questions/7853332/how-to-change-git-log-date-formats
-				...(limit === null ? [] : [`--max-count=${limit}`]),
-				// Commits are date-sorted by default, but `--date-order` enforces proper parent-child ordering for commits with equal dates.
-				// Unfortunately, it can also make the command much slower, as if ignoring `--max-count`.
-				// Running `git commit-graph write` or `git gc` should help in such cases.
-				// https://github.com/jesseduffield/lazygit/discussions/2396
-				"--date-order",
-			);
-			const commits = [
-				{ hash: "WORKING_TREE", parents: this.current_head },
+
+			const
+				log = await this.repo.callGit(
+					'log',
+					..._.map(excluded_references, (id) => `--exclude=${id}`),
+					'--all',
+					'-z',
+					'--pretty=format:' + Object.values(format).join(field_separator),
+					'--date=format-local:%Y-%m-%d %H:%M',
+					...(limit === null ? [] : [`--max-count=${limit}`]),
+					'--date-order',
+				),
+				commits = [{
+					hash: 'WORKING_TREE',
+					parents: this.current_head
+				},
 				...log
-					.split("\0")
+					.split('\0')
 					.map((row) =>
 						Object.fromEntries(
 							_.zip(Object.keys(format), row.split(field_separator)),
 						),
 					),
-			];
-			const occupied_levels = {};
-			const running_commits = new Set();
-			const remaining_parents = {};
-			const children = {};
+				],
+				occupied_levels = {},
+				running_commits = new Set(),
+				remaining_parents = {},
+				children = {};
 
 			for (const [i, commit] of commits.entries()) {
 				commit.index = i;
 				commit.hash_abbr = commit.hash.slice(0, settings.hash_abbr_length);
 				commit.references = this.references_by_hash[commit.hash] ?? [];
-				commit.parents = commit.parents ? commit.parents.split(" ") : [];
+				commit.parents = commit.parents ? commit.parents.split(' ') : [];
 
 				for (const parent_hash of commit.parents) {
 					children[parent_hash] ??= [];
@@ -390,7 +402,8 @@ export default {
 				remaining_parents[commit.hash] = new Set(commit.parents);
 
 				let min_child_index = i;
-				for (const child of _.sortBy(children[commit.hash], "level")) {
+
+				for (const child of _.sortBy(children[commit.hash], 'level')) {
 					if (
 						occupied_levels[child.level] === child &&
 						commit.hash === child.parents[0] &&
@@ -401,6 +414,7 @@ export default {
 					}
 					min_child_index = Math.min(min_child_index, child.index);
 				}
+
 				if (commit.level === undefined) {
 					for (let level = 0; ; ++level) {
 						if (occupied_levels[level] === undefined) {
@@ -409,12 +423,15 @@ export default {
 						}
 					}
 				}
+
 				if (commit.parents.length > 0) {
 					occupied_levels[commit.level] = commit;
 					running_commits.add(commit);
 				}
+
 				for (const child of children[commit.hash] ?? []) {
 					remaining_parents[child.hash].delete(commit.hash);
+
 					if (remaining_parents[child.hash].size === 0) {
 						if (child.level !== commit.level) {
 							delete occupied_levels[child.level];
@@ -424,9 +441,11 @@ export default {
 				}
 				commit.running_commits = [...running_commits];
 			}
+
 			if (this.commits === undefined) {
-				this.setSelectedCommits(["WORKING_TREE"]);
+				this.setSelectedCommits(['WORKING_TREE']);
 			}
+
 			this.commits = Object.freeze(commits);
 			this.current_commit_limit = limit;
 
@@ -447,25 +466,27 @@ export default {
 			let operation = null;
 
 			for (const [type, path] of [
-				["rebase", ".git/rebase-merge/stopped-sha"],
-				["cherry-pick", ".git/CHERRY_PICK_HEAD"],
-				["revert", ".git/REVERT_HEAD"],
-				["merge", ".git/MERGE_HEAD"],
+				['rebase', '.git/rebase-merge/stopped-sha'],
+				['cherry-pick', '.git/CHERRY_PICK_HEAD'],
+				['revert', '.git/REVERT_HEAD'],
+				['merge', '.git/MERGE_HEAD'],
 			]) {
-				const hash = await this.repo.readFile(path, {
-					null_if_not_exists: true,
-				});
-
-				if (hash !== null) {
-					const label = {
-						rebase: "Rebasing",
-						"cherry-pick": "Cherry-picking",
-						revert: "Reverting",
-						merge: "Merging",
-					}[type];
-					const conflict_message = await this.repo.readFile(".git/MERGE_MSG", {
+				const
+					hash = await this.repo.readFile(path, {
 						null_if_not_exists: true,
 					});
+
+				if (hash !== null) {
+					const
+						label = {
+							rebase: 'Rebasing',
+							'cherry-pick': 'Cherry-picking',
+							revert: 'Reverting',
+							merge: 'Merging',
+						}[type],
+						conflict_message = await this.repo.readFile(".git/MERGE_MSG", {
+							null_if_not_exists: true,
+						});
 
 					operation = {
 						type,
@@ -481,7 +502,6 @@ export default {
 				}
 			}
 			this.current_operation = operation;
-
 			this.working_tree_files = Object.freeze(await getStatus(this.repo));
 		},
 		async search() {
