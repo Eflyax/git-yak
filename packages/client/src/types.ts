@@ -6,3 +6,7 @@ export enum ENetworkCommands {
 export enum ECommitHashes {
 	WorkingTree = 'WORKING_TREE'
 }
+
+export enum ESystemEvents {
+	OpenContextMenuCommit = 'open-context-menu'
+}

@@ -374,6 +374,7 @@ export default {
 						const stash_id = stash.id.replace(/"/g, '');
 
 						return {
+							id: stash_id,
 							hash: stash.hash,
 							parents: stash.parentHash || '',
 							subject: stash.message.split(':').slice(1).join(':').slice(0, -1),

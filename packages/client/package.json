@@ -9,7 +9,9 @@
 	},
 	"dependencies": {
 		"@guolao/vue-monaco-editor": "^1.5.1",
+		"@imengyu/vue3-context-menu": "^1.5.4",
 		"@mdi/js": "^7.4.47",
+		"@nguyenshort/vue3-mitt": "^0.0.4",
 		"@vitejs/plugin-vue": "^6.0.3",
 		"json5": "^2.2.3",
 		"lodash": "^4.17.21",

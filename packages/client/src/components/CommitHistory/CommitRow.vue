@@ -3,6 +3,7 @@
 		class="commit-row"
 		:class="isSelected ? 'active' : '[&:not(:first-child)]:*:text-gray'"
 		@click="select"
+		@contextmenu="onContextMenu($event, commit)"
 	>
 		<div v-if="commit.hash === ECommitHashes.WorkingTree">
 			<template v-if="current_operation !== null">
@@ -42,7 +43,7 @@
 </template>
 
 <script>
-import {ECommitHashes} from '@/types';
+import {ECommitHashes, ESystemEvents} from '@/types';
 
 export default {
 	inject: [
@@ -95,6 +96,13 @@ export default {
 		}
 	},
 	methods: {
+		onContextMenu(e, commit) {
+			e.preventDefault();
+			this.$emitter.emit(ESystemEvents.OpenContextMenuCommit, {
+				e,
+				commit
+			});
+		},
 		select(event) {
 			if (event.shiftKey && this.selected_commits.length > 0) {
 				let source = this.commit_by_hash[_.last(this.selected_commits)];

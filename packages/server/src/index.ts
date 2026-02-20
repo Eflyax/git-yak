@@ -21,14 +21,23 @@ serve({
 
 				if (command === 'git-call') {
 					await gitCallCommand.run(ws, data);
-				} else if (command === 'read-file') {
-						await readFileCommand.run(ws, data);
-				} else {
+				}
+				else if (command === 'read-file') {
+					await readFileCommand.run(ws, data);
+				}
+				else {
 					ws.send(JSON.stringify({message: `You said: ${message}`}));
 				}
-			} catch (error: any) {
-				console.error("Failed to process message:", error);
-				ws.send(JSON.stringify({ requestId: data?.requestId, status: 'error', message: 'Invalid message format or error processing message.', details: error.message }));
+			}
+			catch (error: any) {
+				console.error('Failed to process message', error);
+
+				ws.send(JSON.stringify({
+					requestId: data?.requestId,
+					status: 'error',
+					message: 'Invalid message format or error processing message.',
+					details: error.message
+				}));
 			}
 		},
 		open(ws) {
@@ -36,7 +45,7 @@ serve({
 			ws.send(JSON.stringify({message: 'Hello from Bun WebSocket server!'}));
 		},
 		close(ws, code, reason) {
-			console.log("WebSocket connection closed", code, reason);
+			console.log('WebSocket connection closed', code, reason);
 		},
 	},
 	port: 3000,

@@ -1,4 +1,3 @@
-
 import {createApp} from 'vue';
 import {install as VueMonacoEditorPlugin} from '@guolao/vue-monaco-editor';
 import {RecycleScroller} from 'vue-virtual-scroller';
@@ -7,6 +6,7 @@ import Btn from './widgets/btn.vue';
 import CommitHash from './widgets/commit-hash.vue';
 import CommitLink from './widgets/commit-link.vue';
 import CommitMessage from './widgets/commit-message.vue';
+import ContextMenu from '@imengyu/vue3-context-menu';
 import Draggable from 'vuedraggable';
 import FilePath from './widgets/file-path.vue';
 import FileStatus from './components/CommitDetails/FileStatus.vue';
@@ -14,6 +14,7 @@ import Icon from './widgets/icon.vue';
 import Modal from './widgets/modal.vue';
 import monaco_theme from './theme/monaco';
 import Toggle from './widgets/toggle.vue';
+import VueMitter from '@nguyenshort/vue3-mitt';
 import VueSplit from 'vue-split-panel';
 import _ from './utils';
 import * as monaco from 'monaco-editor';
@@ -21,6 +22,7 @@ import * as settings from './settings';
 import './styles/global.scss';
 import 'splitpanes/dist/splitpanes.css';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
 window._ = _;
 window.settings = settings;
@@ -47,9 +49,10 @@ for (const lang of ['css', 'scss', 'less']) {
 }
 monaco.editor.defineTheme('custom', monaco_theme);
 
-app.use(VueMonacoEditorPlugin, {
-	monaco
-});
+app
+	.use(VueMonacoEditorPlugin, {monaco})
+	.use(VueMitter)
+	.use(ContextMenu);
 
 app.config.globalProperties.$_ = _;
 app.config.globalProperties.$settings = settings;

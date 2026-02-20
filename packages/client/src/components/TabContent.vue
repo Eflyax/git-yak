@@ -129,6 +129,7 @@ import FileDiff from "./FileDiff/FileDiff.vue";
 import ReferenceDetails from "./ReferenceDetails/ReferenceDetails.vue";
 import ReferenceList from "./ReferenceList/ReferenceList.vue";
 import {Splitpanes, Pane} from 'splitpanes';
+import { ESystemEvents } from "../types";
 
 function provideReactively({ data = () => ({}), computed = {}, methods = {} }) {
 	return {
@@ -372,6 +373,60 @@ export default {
 	},
 	async mounted() {
 		this.repoPath = await this.openRepo();
+
+		// todo
+		this.$emitter.on(ESystemEvents.OpenContextMenuCommit , (argument) => {
+			const
+				{e, commit} = argument,
+				items = [];
+
+			if (commit.isStash) {
+				const
+					stashAction = async (action, stashId) => {
+						await this.repo.callGit('stash', 'apply', stashId);
+						await this.refreshHistory();
+						await this.refreshStatus();
+					}
+
+				items.push({
+					label: 'Apply stash',
+					onClick: async () => {
+						await stashAction('apply', commit.id);
+					}
+				}, {
+					label: 'Pop stash',
+					onClick: async () => {
+						await stashAction('pop', commit.id);
+					}
+				}, {
+					label: 'Delete stash',
+					onClick: async () => {
+						await stashAction('drop', commit.id);
+					}
+				});
+			}
+			else {
+				items.push({
+					label: 'Reset HEAD to this commit',
+					children: [{
+						label: 'Soft'
+					}, {
+						label: 'Mixed'
+					}, {
+						label: 'Hard',
+						onClick: () => {
+							alert('...reset hard');
+						}
+					}]
+				});
+			}
+
+			this.$contextmenu({
+				x: e.x,
+				y: e.y,
+				items
+			});
+		});
 	},
 	methods: {
 		async openRepo() {
