@@ -383,7 +383,7 @@ export default {
 			if (commit.isStash) {
 				const
 					stashAction = async (action, stashId) => {
-						await this.repo.callGit('stash', 'apply', stashId);
+						await this.repo.callGit('stash', action, stashId);
 						await this.refreshHistory();
 						await this.refreshStatus();
 					}
@@ -406,16 +406,29 @@ export default {
 				});
 			}
 			else {
+				const
+					resetAction = async (action, commitHash) => {
+						await this.repo.callGit('reset', action, commitHash);
+						await this.refreshHistory();
+						await this.refreshStatus();
+					};
+
 				items.push({
 					label: 'Reset HEAD to this commit',
 					children: [{
-						label: 'Soft'
+						label: 'Soft',
+						onClick: async () => {
+							await resetAction('--soft', commit.hash);
+						}
 					}, {
-						label: 'Mixed'
+						label: 'Mixed',
+						onClick: async () => {
+							await resetAction('--mixed', commit.hash);
+						}
 					}, {
 						label: 'Hard',
-						onClick: () => {
-							alert('...reset hard');
+						onClick: async () => {
+							await resetAction('--hard', commit.hash);
 						}
 					}]
 				});
@@ -424,7 +437,8 @@ export default {
 			this.$contextmenu({
 				x: e.x,
 				y: e.y,
-				items
+				items,
+				theme: 'win10 dark',
 			});
 		});
 	},
