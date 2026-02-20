@@ -11,3 +11,13 @@ export enum ESystemEvents {
 	OpenContextMenuCommit = 'open-context-menu',
 	RerenderCommitHistory = 'rerender-commit-history' // temporary hack
 }
+
+export interface Project {
+  id: string;
+  order: number;
+  alias: string;
+  path: string;
+  server: string;
+  port: number;
+  dateLastOpen: number;
+}

@@ -346,7 +346,7 @@ export default {
 	},
 	data: () => ({
 		error_messages: [],
-		websocket: new WebSocketClient('ws://localhost:3000'),
+		websocket: new WebSocketClient('ws://localhost:3000'), // TODO - use project configuration for websocket connection
 	}),
 	watch: {
 		repo_details: {
@@ -467,7 +467,8 @@ export default {
 	},
 	methods: {
 		async openRepo() {
-			let path = await window.electron.openRepo();
+			// path =
+			// let path = await window.electron.openRepo();
 
 			if (path !== undefined) {
 				path = path.replace(/\\/g, "/");
