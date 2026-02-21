@@ -29,19 +29,7 @@ interface ILoadOptions {
 	limit?: number | null;
 }
 
-export function useCommits(
-	repo: Ref<any>, {
-		references_by_hash,
-		hidden_references,
-		stashes,
-		current_head,
-	}: {
-		references_by_hash: Ref<Record<string, any[]>>;
-		hidden_references: Ref<string[]>;
-		stashes:  Ref<Record<string, IStash>>;
-		current_head: Ref<string>;
-	},
-) {
+export function useCommits() {
 	const
 		commits  = ref<Array<any>>([]),
 		selected_commits = ref<string[]>([]),
@@ -157,9 +145,10 @@ export function useCommits(
 	}
 
 	async function loadCommits({limit}: ILoadOptions = {}): Promise<{selectionReset: boolean}> {
+		// todo pass repo as argument
 		const
 			excluded = [...hidden_references.value, 'refs/stash'],
-			log = await repo.value.callGit(
+			log = await repo?.value?.callGit(
 				'log',
 				..._.map(excluded, id => `--exclude=${id}`),
 				'--all',

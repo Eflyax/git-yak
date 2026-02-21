@@ -175,15 +175,8 @@ const {
 	commit_by_hash,
 	selected_commits,
 	setSelectedCommits,
-	loaded_all,
-	// loadCommits,
-	// loadMore,
-} = useCommits(repo, {
-	references_by_hash,
-	hidden_references: computed(() => [...hidden_references.value]),
-	stashes,
-	current_head,
-});
+	loaded_all
+} = useCommits();
 
 const revisions_to_diff = computed(() => {
 	if (selected_commits.value.length === 1) {
