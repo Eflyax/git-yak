@@ -1,37 +1,40 @@
 <template>
 	<n-config-provider :theme="darkTheme">
-		<div class="app-root">
-			<div class="repos">
-				<n-button
-					title="Add tab"
-					type="default"
-					class="open-repo"
-					@click="mockModalWithPathSelection"
-				>
-					<!-- @click="addTab" -->
-					<icon name="mdi-plus" />
-				</n-button>
-
-				<div class="project-list">
+		<n-dialog-provider>
+			<div class="app-root">
+				<div class="repos">
 					<n-button
-						v-for="project in projects"
-						:key="project.id"
-						@click="openProject = project"
-						:title="project.path"
+						title="Add tab"
+						type="info"
+						secondary
+						class="open-repo"
+						@click="openProject = null"
 					>
-						{{ project.alias || project.path }}
+						<icon name="mdi-folder" />
 					</n-button>
+
+					<div class="project-list">
+						<n-button
+							v-for="project in projects"
+							:key="project.id"
+							@click="openProject = project"
+							:title="project.path"
+						>
+							{{ project.alias || project.path }}
+						</n-button>
+					</div>
+				</div>
+
+				 <div class="tab-wrapper">
+					<TabContent
+						v-if="openProject"
+						:repo_details="openProject"
+						:key="openProject.id"
+					/>
+					<project-manager v-else/>
 				</div>
 			</div>
-
-			 <div class="tab-wrapper">
-				<TabContent
-					v-if="openProject"
-					:repo_details="openProject"
-					:key="openProject.id"
-				/>
-			</div>
-		</div>
+		</n-dialog-provider>
 	</n-config-provider>
 </template>
 
@@ -39,12 +42,16 @@
 import WindowEventMixin from '@/mixins/WindowEventMixin';
 import TabContent from './components/TabContent.vue';
 import {electronMock} from './electronMock';
-import {darkTheme, NButton, NConfigProvider, NInput, NDatePicker, NSpace} from 'naive-ui';
+import {darkTheme, NDialogProvider, NButton, NConfigProvider, NInput, NDatePicker, NSpace} from 'naive-ui';
 import {useProject} from './composables/useProject';
 import Icon from './widgets/icon.vue';
+import ProjectManager from '@/components/ProjectManager.vue';
+
 
 export default {
 	components: {
+		ProjectManager,
+		NDialogProvider,
 		NButton,
 		TabContent,
 		NConfigProvider,
