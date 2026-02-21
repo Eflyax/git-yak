@@ -190,12 +190,12 @@ export default {
 		async saveStash() {
 			await this.callGit('stash');
 			await this.loadStashes();
-			await this.refreshStatus();
+			await Promise.all([this.refreshHistory({skip_references: true}), this.refreshStatus()]);
 		},
 		async popStash() {
 			await this.callGit('stash', 'pop');
 			await this.loadStashes();
-			await this.refreshStatus();
+			await Promise.all([this.refreshHistory({skip_references: true}), this.refreshStatus()]);
 		},
 		async amendCommit() {
 			await this.saveSelectedFile();

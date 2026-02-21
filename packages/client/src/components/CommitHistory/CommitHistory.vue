@@ -174,7 +174,7 @@ export default {
 		search_hashes: [],
 		search_index: null,
 		show_settings_modal: false,
-		CONFIG
+		CONFIG,
 	}),
 	computed: {
 		loaded_all() {
@@ -230,6 +230,7 @@ export default {
 			]);
 		},
 		async loadHistory({ skip_references = false, limit } = {}) {
+
 			if (!skip_references) {
 				const
 					summary = await this.repo.callGit(

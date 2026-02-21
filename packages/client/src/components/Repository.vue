@@ -1,76 +1,61 @@
 <template>
 	<div
-		class="tab-content"
+		class="repository"
 	>
-		<div
-			v-if="currentProject.path === undefined"
-		>
-			<input
-				v-model.trim="currentProject.title"
-				placeholder="Title"
-				:spellcheck="false"
-			/>
-			<btn @click="openRepo">
-				<icon name="mdi-folder" class="size-5" />
-				Open repository
-			</btn>
-		</div>
-		<template v-else>
-			<div class="main-content">
-				<div class="content-toolbar">
-					<div class="meta">
-						<span class="repository-name">
-							 <icon name="mdi-folder-open-outline" />
-							 {{ currentProject.path?.split('/').pop() }}
-						</span>
+		<div class="main-content">
+			<div class="content-toolbar">
+				<div class="meta">
+					<span class="repository-name">
+						 <icon name="mdi-folder-open-outline" />
+						 {{ currentProject.path?.split('/').pop() }}
+					</span>
 
-						<span class="current-branch-name">
-							<icon name="mdi-source-branch" />
-							{{ current_branch_name }}
-						</span>
-					</div>
-					<div class="controls">
-						<action-bar />
-					</div>
-					<div class="account">
-						<span>{{ 'name' }}</span>
-						<span>{{ 'email' }}</span>
-					</div>
+					<span class="current-branch-name">
+						<icon name="mdi-source-branch" />
+						{{ current_branch_name }}
+					</span>
 				</div>
-				<splitpanes style="height: 500px;" >
-					<pane
-						class="left"
-						size="12"
-					>
-						<ReferenceList />
-					</pane>
-					<pane
-						class="middle"
-					>
-						<FileDiff
-							v-if="selected_file !== null"
-							ref="file_diff"
-						/>
-						<CommitHistory
-							v-else
-							ref="commit_history"
-							:key="commitHistoryKey"
-						/>
-					</pane>
-					<pane
-						class="right"
-						size="25"
-					>
-						<CommitDetails
-							v-if="selected_commits.length > 0"
-						/>
-						<ReferenceDetails
-							v-else-if="selected_reference !== null"
-						/>
-					</pane>
-				</splitpanes>
+				<div class="controls">
+					<action-bar />
+				</div>
+				<div class="account">
+					<span>{{ 'name' }}</span>
+					<span>{{ 'email' }}</span>
+				</div>
 			</div>
-		</template>
+			<splitpanes style="height: 500px;" >
+				<pane
+					class="left"
+					size="12"
+				>
+					<ReferenceList />
+				</pane>
+				<pane
+					class="middle"
+				>
+					<FileDiff
+						v-if="selected_file !== null"
+						ref="file_diff"
+					/>
+					<CommitHistory
+						v-else
+						ref="commit_history"
+						:key="commitHistoryKey"
+					/>
+				</pane>
+				<pane
+					class="right"
+					size="25"
+				>
+					<CommitDetails
+						v-if="selected_commits.length > 0"
+					/>
+					<ReferenceDetails
+						v-else-if="selected_reference !== null"
+					/>
+				</pane>
+			</splitpanes>
+		</div>
 	</div>
 
 	<modal v-if="error_messages.length > 0" @close="error_messages.shift()">
@@ -88,6 +73,7 @@ import {ESystemEvents} from '@/types';
 import {WebSocketClient} from '@/utils/websocket';
 import {useProject} from '@/composables/useProject';
 import {useCommits} from '@/composables/useCommits';
+import {useStash} from '@/composables/useStash';
 import {useGit} from '@/composables/useGit';
 import ActionBar from './ActionBar/ActionBar.vue';
 import CommitDetails from './CommitDetails/CommitDetails.vue';
@@ -314,10 +300,9 @@ onMounted(() => {
 		if (commit.isStash) {
 			const stashAction = async (action, stashId) => {
 				await repo.value.callGit('stash', action, stashId);
-				await refreshHistory();
-				await refreshStatus();
-				// todo - on success delete commit stash?
-				proxy.$emitter.emit(ESystemEvents.RerenderCommitHistory);
+				const {loadStashes} = useStash();
+				await loadStashes();
+				await Promise.all([refreshHistory({skip_references: true}), refreshStatus()]);
 			};
 
 			items.push(
@@ -367,7 +352,6 @@ provide('current_operation',   pw(() => current_operation.value,   v => (current
 provide('working_tree_files',  pw(() => working_tree_files.value,  v => (working_tree_files.value  = v)));
 provide('selected_file',       pw(() => selected_file.value,       v => (selected_file.value       = v)));
 provide('save_semaphore',      pw(() => save_semaphore.value,      v => (save_semaphore.value      = v)));
-provide('commitHistoryKey',    pw(() => commitHistoryKey.value,    v => (commitHistoryKey.value    = v)));
 
 // Readonly computed
 provide('repo', repo);
