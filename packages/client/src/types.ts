@@ -12,12 +12,12 @@ export enum ESystemEvents {
 	RerenderCommitHistory = 'rerender-commit-history' // temporary hack
 }
 
-export interface Project {
-  id: string;
-  order: number;
-  alias: string;
-  path: string;
-  server: string;
-  port: number;
-  dateLastOpen: number;
+export interface IProject {
+	id: string;
+	order: number;
+	alias: string;
+	path: string;
+	server: string;
+	port: number;
+	dateLastOpen: number;
 }

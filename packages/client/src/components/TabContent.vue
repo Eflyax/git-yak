@@ -1,13 +1,12 @@
 <template>
 	<div
-		v-show="active"
 		class="tab-content"
 	>
 		<div
-			v-if="repo_details.path === undefined"
+			v-if="openProject.path === undefined"
 		>
 			<input
-				v-model.trim="repo_details.title"
+				v-model.trim="openProject.title"
 				placeholder="Title"
 				:spellcheck="false"
 			/>
@@ -132,6 +131,7 @@ import ReferenceList from "./ReferenceList/ReferenceList.vue";
 import {Splitpanes, Pane} from 'splitpanes';
 import { ESystemEvents } from "../types";
 import {WebSocketClient} from '@/utils/websocket';
+import {useProject} from '@/composables/useProject';
 
 function provideReactively({ data = () => ({}), computed = {}, methods = {} }) {
 	return {
@@ -174,7 +174,6 @@ export default {
 		Splitpanes,
 		Pane,
 	},
-	inject: ['websocket'],
 	mixins: [
 		provideReactively({
 			data: () => ({
@@ -193,9 +192,6 @@ export default {
 				commitHistoryKey: 0
 			}),
 			computed: {
-				tab_active() {
-					return this.active;
-				},
 				repo() {
 					const handleErrors = async (promise) => {
 						try {
@@ -217,14 +213,14 @@ export default {
 							func_name,
 							async (...args) =>
 								await handleErrors(
-									window.electron[func_name](this.repo_details.path, ...args),
+									window.electron[func_name](this.openProject.path, ...args),
 								),
 						]),
 					);
 
 					const callGitOverWebSocket = async (...args) => {
 						const payload = {
-							repo_path: this.repo_details.path,
+							repo_path: this.openProject.path,
 							args: args,
 						};
 						return await handleErrors(this.websocket.call("git-call", payload));
@@ -232,7 +228,7 @@ export default {
 
 					const readFileOverWebSocket = async (file_path, options = {}) => {
 						const payload = {
-							repo_path: this.repo_details.path,
+							repo_path: this.openProject.path,
 							file_path,
 							options,
 						};
@@ -340,18 +336,25 @@ export default {
 		StoreMixin("main_pane_size", 75),
 		StoreMixin("references_pane_size", 15),
 	],
-	props: {
-		active: { type: Boolean },
-		repo_details: { type: Object, required: true },
+	setup() {
+		const {openProject} = useProject();
+
+		return {
+			openProject
+		}
 	},
-	data: () => ({
-		error_messages: [],
-		websocket: new WebSocketClient('ws://localhost:3000'), // TODO - use project configuration for websocket connection
-	}),
+	data() {
+		return {
+			error_messages: [],
+			websocket: undefined
+		};
+	},
 	watch: {
-		repo_details: {
+		openProject: {
 			async handler() {
-				if (this.repo_details.path !== undefined) {
+				if (this.openProject.path !== undefined) {
+					this.websocket = new WebSocketClient(`ws://${this.openProject.server}:${this.openProject.port}`);
+
 					const hidden_references_content = await this.repo.readFile(
 						".git/.git-cracken/hidden-refs.txt",
 						{ null_if_not_exists: true },
@@ -382,6 +385,13 @@ export default {
 		},
 	},
 	async mounted() {
+		console.log('mouted')
+		/*
+		1) get project info
+		2) init websocket
+	 	*/
+		console.log(this.$props);
+
 		this.repoPath = await this.openRepo();
 
 		// todo
@@ -468,12 +478,12 @@ export default {
 	methods: {
 		async openRepo() {
 			// path =
-			// let path = await window.electron.openRepo();
+			let path = await window.electron.openRepo();
 
 			if (path !== undefined) {
 				path = path.replace(/\\/g, "/");
-				this.repo_details.path = path;
-				this.repo_details.title ??= path.slice(path.lastIndexOf("/") + 1);
+				this.openProject.path = path;
+				this.openProject.title ??= path.slice(path.lastIndexOf("/") + 1);
 			}
 
 			return path;

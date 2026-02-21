@@ -1,8 +1,9 @@
 import {ref, readonly} from 'vue';
-import type {Project} from '@/types';
+import type {IProject} from '@/types';
 
 const
-	projects = ref<Project[]>([]),
+	projects = ref<IProject[]>([]),
+	openProject = ref<IProject | null>(null),
 	PROJECTS_STORAGE_KEY = 'projects';
 
 try {
@@ -32,9 +33,9 @@ export function useProject() {
 			return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 	}
 
-	function addProject(projectData: Omit<Project, 'id' | 'order' | 'dateLastOpen'>): Project {
+	function addProject(projectData: Omit<IProject, 'id' | 'order' | 'dateLastOpen'>): IProject {
 		const
-			newProject: Project = {
+			newProject: IProject = {
 				...projectData,
 				id: generateId(),
 				order: projects.value.length,
@@ -56,7 +57,7 @@ export function useProject() {
 		}
 	}
 
-	function updateProject(projectId: string, updates: Partial<Omit<Project, 'id'>>) {
+	function updateProject(projectId: string, updates: Partial<Omit<IProject, 'id'>>) {
 		const
 			project = projects.value.find(p => p.id === projectId);
 
@@ -71,6 +72,7 @@ export function useProject() {
 
 	return {
 		projects: readonly(projects),
+		openProject,
 		addProject,
 		removeProject,
 		updateProject,
