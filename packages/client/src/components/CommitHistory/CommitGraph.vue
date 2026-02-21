@@ -97,8 +97,7 @@
 import CommitRow from './CommitRow.vue';
 import {CONFIG} from '@/settings';
 import {useStash} from '@/composables/useStash';
-// import * as archiveOutline from '@/assets/svg/archive-outline.svg';
-// import archiveOutline from '@/assets/svg/archive-outline.svg?url';
+import {useCommits} from '@/composables/useCommits';
 import ArchiveIcon from '@/assets/svg/archive-outline.svg?component';
 
 export default {
@@ -107,7 +106,6 @@ export default {
 		ArchiveIcon
 	},
 	inject: [
-		'commits',
 		'commit_by_hash',
 		'selected_commits',
 	],
@@ -118,9 +116,12 @@ export default {
 		},
 	},
 	setup() {
-		const {stashes} = useStash();
+		const
+			{stashes} = useStash(),
+			{commits} = useCommits();
 
 		return {
+			commits,
 			stashes
 		};
 	},

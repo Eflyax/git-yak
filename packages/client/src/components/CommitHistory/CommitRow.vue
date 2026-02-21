@@ -43,11 +43,11 @@
 </template>
 
 <script>
+import {useCommits} from '@/composables/useCommits';
 import {ECommitHashes, ESystemEvents} from '@/types';
 
 export default {
 	inject: [
-		'commits',
 		'commit_by_hash',
 		'selected_commits',
 		'current_operation',
@@ -61,6 +61,13 @@ export default {
 			type: Object,
 			default: null
 		},
+	},
+	setup() {
+		const {commits} = useCommits();
+
+		return {
+			commits
+		};
 	},
 	data() {
 		return {

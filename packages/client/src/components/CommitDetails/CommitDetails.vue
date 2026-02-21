@@ -281,7 +281,7 @@
 <script>
 import StoreMixin from "@/mixins/StoreMixin";
 import { getEmptyRootHash } from "@/utils/git";
-
+import {useCommits} from '@/composables/useCommits';
 import BranchModal from "./BranchModal.vue";
 import CommitterDetails from "./CommitterDetails.vue";
 import FileRow from "./FileRow.vue";
@@ -303,7 +303,6 @@ export default {
 	},
 	inject: [
 		"repo",
-		"commits",
 		"commit_by_hash",
 		"selected_commits",
 		"revisions_to_diff",
@@ -318,6 +317,14 @@ export default {
 		"refreshHistory",
 		"refreshStatus",
 	],
+	setup() {
+		const
+			{commits} = useCommits();
+
+		return {
+			commits,
+		};
+	},
 	data: () => ({
 		current_commits: undefined,
 		files: undefined,

@@ -29,14 +29,17 @@ interface ILoadOptions {
 	limit?: number | null;
 }
 
-export function useCommits() {
-	const
+const
 		commits  = ref<Array<any>>([]),
 		selected_commits = ref<string[]>([]),
 		current_commit_limit = ref<number | null | undefined>(undefined);
 
+export function useCommits() {
+
 	const commit_by_hash = computed(() => {
-		if (!commits.value) return {};
+		if (!commits.value) {
+			return {};
+		}
 
 		return Object.fromEntries(commits.value.map(c => [c.hash, c]));
 	});

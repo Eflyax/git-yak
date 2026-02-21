@@ -171,7 +171,6 @@ const current_head       = computed(() => references_by_type.value.head?.[0]?.ha
 const {stashes, getStashes} = useStash(repo);
 
 const {
-	commits,
 	commit_by_hash,
 	selected_commits,
 	setSelectedCommits,
@@ -353,7 +352,7 @@ provide('config',              pw(() => config.value,              v => (config.
 provide('references',          pw(() => references.value,          v => (references.value          = v)));
 provide('selected_reference',  pw(() => selected_reference.value,  v => (selected_reference.value  = v)));
 provide('hidden_references',   pw(() => hidden_references.value,   v => (hidden_references.value   = v)));
-provide('commits',             pw(() => commits.value,             v => (commits.value             = v)));
+// provide('commits',             pw(() => commits.value,             v => (commits.value             = v)));
 provide('selected_commits',    pw(() => selected_commits.value,    v => (selected_commits.value    = v)));
 provide('current_branch_name', pw(() => current_branch_name.value, v => (current_branch_name.value = v)));
 provide('current_operation',   pw(() => current_operation.value,   v => (current_operation.value   = v)));

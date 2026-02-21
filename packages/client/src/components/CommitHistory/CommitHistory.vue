@@ -78,23 +78,6 @@
 							}"
 						/>
 					</div>
-
-					 <!-- <recycle-scroller
-						v-if="commits !== undefined"
-						ref="references_scroller"
-						emit-update
-						:items="commits"
-						:item-size="row_height"
-						key-field="hash"
-						list-class="static"
-						v-slot="{item}"
-						style="border: 2px solid aqua;"
-					>
-						<CommitRefsRow
-							:key="item.hash"
-							:commit="item"
-						/>
-					</recycle-scroller> -->
 				</pane>
 				<pane
 					:size="commit_graph_column_size"
@@ -142,6 +125,7 @@ import SettingsModal from "./SettingsModal.vue";
 import {Splitpanes, Pane} from 'splitpanes';
 import {CONFIG} from '@/settings';
 import {useStash} from "@/composables/useStash";
+import {useCommits} from '@/composables/useCommits';
 const field_separator = "\x06";
 const commit_limit_multiplier = 4;
 import {inject} from 'vue';
@@ -170,7 +154,6 @@ export default {
 		"references_by_hash",
 		"selected_reference",
 		"hidden_references",
-		"commits",
 		"commit_by_hash",
 		"revisions_to_diff",
 		"selected_commits",
@@ -185,7 +168,8 @@ export default {
 	setup() {
 		const
 			repo = inject('repo'),
-			{getStashes, stashes} = useStash(repo.value);
+			{getStashes, stashes} = useStash(repo.value),
+			{commits} = useCommits();
 
 		return {
 			getStashes,
