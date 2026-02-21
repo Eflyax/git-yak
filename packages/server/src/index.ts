@@ -2,6 +2,7 @@ import {serve} from 'bun';
 import {defaultConfiguration} from '../../client/src/settings';
 import * as gitCallCommand from './commands/gitCall';
 import * as readFileCommand from './commands/readFile';
+import * as fileBrowserCommand from './commands/fileBrowser';
 
 serve({
 	fetch(req, server) {
@@ -25,6 +26,9 @@ serve({
 				}
 				else if (command === 'read-file') {
 					await readFileCommand.run(ws, data);
+				}
+				else if (command === 'browse-files') {
+					await fileBrowserCommand.run(ws, data);
 				}
 				else {
 					ws.send(JSON.stringify({message: `You said: ${message}`}));

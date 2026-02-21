@@ -38,7 +38,11 @@
 							v-model:value="editableProject.path" placeholder="Project Path"
 							disabled
 						/>
-						<n-button type="info" ghost>
+						<n-button
+							type="info"
+							ghost
+							@click="browseFiles"
+						>
 							Browse...
 						</n-button>
 					</n-input-group>
@@ -54,16 +58,27 @@
 				</n-button>
 			</n-form>
 		</n-card>
+
+		<NModal
+			v-model:show="showModal"
+			title="Select repository path"
+			preset="card"
+			style="width: 800px;"
+		>
+			<file-browser />
+		</NModal>
 	</div>
 </template>
 
 <script setup lang="ts">
 import {useProject} from '@/composables/useProject';
-import {computed} from 'vue';
+import {computed, ref} from 'vue';
+import FileBrowser from '@/components/ProjectManager/FileBrowser.vue';
 import {defaultConfiguration} from '@/settings';
-import {NButton,NSpace, NInput, NInputGroup, NCard, NForm, NRadioButton, NRadioGroup, NFormItem, NInputNumber} from 'naive-ui';
+import {NButton,NSpace, NInput, NModal, NInputGroup, NCard, NForm, NRadioButton, NRadioGroup, NFormItem, NInputNumber} from 'naive-ui';
 
 const
+	showModal = ref(false),
 	{addProject, updateProject, editableProject} = useProject(),
 	localhost = computed({
 		get: () => {
@@ -96,6 +111,10 @@ function handleSave() {
 	editableProject.value = null;
 
 	success();
+}
+
+function browseFiles() {
+	showModal.value = true;
 }
 
 </script>

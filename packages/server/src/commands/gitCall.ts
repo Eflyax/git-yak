@@ -5,9 +5,6 @@ export const run = async (ws, data) => {
 	const executeGit = async () => {
 		// Note: The original implementation had an 'as_buffer' option.
 		// This implementation decodes stdout as a UTF-8 string for now.
-		//
-		console.log();
-		console.log();
 		console.log();
 		console.log({git: args});
 
