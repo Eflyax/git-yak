@@ -106,11 +106,11 @@ function confirmDelete(project) {
 	display: flex;
 
 	.list {
-		flex: 1;
+		width: 800px;
 	}
 
 	.detail {
-		flex: 2;
+		width: 500px;
 	}
 }
 

@@ -7,6 +7,10 @@ export const icons = {
 	remote_branch: 'mdi-cloud-outline',
 };
 
+export const defaultConfiguration = {
+	ServerPort: 3000
+}
+
 export const colors = [
 	'#30a0bf',
 	'#0f69f7',

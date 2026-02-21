@@ -1,4 +1,5 @@
 import {serve} from 'bun';
+import {defaultConfiguration} from '../../client/src/settings';
 import * as gitCallCommand from './commands/gitCall';
 import * as readFileCommand from './commands/readFile';
 
@@ -42,13 +43,13 @@ serve({
 		},
 		open(ws) {
 			console.log("WebSocket connection opened");
-			ws.send(JSON.stringify({message: 'Hello from Bun WebSocket server!'}));
+			ws.send(JSON.stringify({message: 'Hello'}));
 		},
 		close(ws, code, reason) {
 			console.log('WebSocket connection closed', code, reason);
 		},
 	},
-	port: 3000,
+	port: defaultConfiguration.ServerPort,
 });
 
-console.log("Bun server running on port 3000");
+console.log(`Server running on port ${defaultConfiguration.ServerPort}`);
