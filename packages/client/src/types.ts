@@ -9,7 +9,18 @@ export enum ECommitHashes {
 
 export enum ESystemEvents {
 	OpenContextMenuCommit = 'open-context-menu',
-	RerenderCommitHistory = 'rerender-commit-history' // temporary hack
+	RerenderCommitHistory = 'rerender-commit-history', // temporary hack
+	Success = 'success',
+	Warning = 'warning',
+	Error = 'error'
+}
+
+declare global {
+	interface Window {
+		success: (content: string, title?: string) => void;
+		warning: (content: string, title?: string) => void;
+		error: (content: string, title?: string) => void;
+	}
 }
 
 export interface IProject {

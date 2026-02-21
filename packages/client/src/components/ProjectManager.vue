@@ -125,6 +125,7 @@ function handleSave() {
 	}
 	showModal.value = false;
 	editableProject.value = null;
+	success();
 }
 
 function confirmDelete(project) {
@@ -135,6 +136,7 @@ function confirmDelete(project) {
 		negativeText: 'Cancel',
 		onPositiveClick: () => {
 			removeProject(project.id);
+			success();
 		},
 	});
 }

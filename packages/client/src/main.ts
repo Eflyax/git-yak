@@ -1,7 +1,8 @@
 import {createApp} from 'vue';
 import {install as VueMonacoEditorPlugin} from '@guolao/vue-monaco-editor';
+import {success, warning, error} from './notification';
 import {RecycleScroller} from 'vue-virtual-scroller';
-import AppRoot from './AppRoot.vue';
+import App from './App.vue';
 import Btn from './widgets/btn.vue';
 import CommitHash from './widgets/commit-hash.vue';
 import CommitLink from './widgets/commit-link.vue';
@@ -26,8 +27,11 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 
 window._ = _;
 window.settings = settings;
+window.success = success;
+window.warning = warning;
+window.error = error;
 
-const app = createApp(AppRoot);
+const app = createApp(App);
 
 app.component('Draggable', Draggable);
 app.component('RecycleScroller', RecycleScroller);
