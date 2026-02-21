@@ -28,6 +28,7 @@
 				<TabContent
 					v-if="openProject"
 					:repo_details="openProject"
+					:key="openProject.id"
 				/>
 			</div>
 		</div>
@@ -72,7 +73,7 @@ export default {
 	methods: {
 		mockModalWithPathSelection() {
 			this.addProject({
-				alias: 'TSS',
+				alias: 'AA',
 				path: '/Users/eflyax/development/typescript-imports-sort',
 				server: 'localhost',
 					port: 3000,

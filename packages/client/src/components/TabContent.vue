@@ -20,8 +20,8 @@
 				<div class="content-toolbar">
 					<div class="meta">
 						<span class="repository-name">
-							<icon name="mdi-folder-open-outline" />
-							{{ repoPath?.split('/').pop() }}
+							 <icon name="mdi-folder-open-outline" />
+							 {{ openProject.path?.split('/').pop() }}
 						</span>
 
 						<span class="current-branch-name">
@@ -188,7 +188,6 @@ export default {
 				working_tree_files: undefined,
 				selected_file: null,
 				save_semaphore: Promise.resolve(),
-				repoPath: undefined,
 				commitHistoryKey: 0
 			}),
 			computed: {
@@ -385,14 +384,6 @@ export default {
 		},
 	},
 	async mounted() {
-		console.log('mouted')
-		/*
-		1) get project info
-		2) init websocket
-	 	*/
-		console.log(this.$props);
-
-		this.repoPath = await this.openRepo();
 
 		// todo
 		this.$emitter.on(ESystemEvents.RerenderCommitHistory, () => {

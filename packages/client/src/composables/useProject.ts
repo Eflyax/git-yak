@@ -18,19 +18,10 @@ catch (e) {
 	projects.value = [];
 }
 
-function saveProjects() {
-	try {
-		localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects.value));
-	}
-	catch (e) {
-		console.error('Failed to save projects to localStorage', e);
-	}
-}
-
 export function useProject() {
 
 	function generateId(): string {
-			return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+		return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 	}
 
 	function addProject(projectData: Omit<IProject, 'id' | 'order' | 'dateLastOpen'>): IProject {
@@ -57,6 +48,15 @@ export function useProject() {
 		}
 	}
 
+	function saveProjects() {
+		try {
+			localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects.value));
+		}
+		catch (e) {
+			console.error('Failed to save projects to localStorage', e);
+		}
+	}
+
 	function updateProject(projectId: string, updates: Partial<Omit<IProject, 'id'>>) {
 		const
 			project = projects.value.find(p => p.id === projectId);
@@ -64,7 +64,7 @@ export function useProject() {
 		if (project) {
 			Object.assign(project, updates);
 			if (updates.hasOwnProperty('path') || updates.hasOwnProperty('alias')) {
-					// just an example of a potential update side-effect
+				// just an example of a potential update side-effect
 			}
 			saveProjects();
 		}
