@@ -172,6 +172,7 @@ export default {
 			{commits} = useCommits();
 
 		return {
+			commits,
 			getStashes,
 			stashes
 		};

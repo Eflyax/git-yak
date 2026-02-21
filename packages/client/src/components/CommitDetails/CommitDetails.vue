@@ -326,7 +326,7 @@ export default {
 		};
 	},
 	data: () => ({
-		current_commits: undefined,
+		current_commits: [],
 		files: undefined,
 		message: "",
 		amend: false,
@@ -336,7 +336,7 @@ export default {
 	}),
 	computed: {
 		commit() {
-			return this.current_commits[0];
+			return this.current_commits?.[0];
 		},
 		working_tree_selected() {
 			return _.some(this.current_commits, {
@@ -344,7 +344,7 @@ export default {
 			});
 		},
 		can_edit() {
-			if (this.current_operation !== null) {
+			if (this.current_operation !== null || !this.current_commits[0]) {
 				return false;
 			}
 			let commit = this.commits[0];
@@ -402,6 +402,11 @@ export default {
 			const current_commits = this.selected_commits.map(
 				(hash) => this.commit_by_hash[hash],
 			);
+
+			if (current_commits.some(c => !c)) {
+				return;
+			}
+
 			const revisions_to_diff = this.revisions_to_diff;
 
 			if (

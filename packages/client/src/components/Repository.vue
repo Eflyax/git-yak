@@ -179,14 +179,24 @@ const {
 
 const revisions_to_diff = computed(() => {
 	if (selected_commits.value.length === 1) {
-		const
-			commit = commit_by_hash.value[selected_commits.value[0]],
-			parent = commit.hash === 'WORKING_TREE' ? 'HEAD' : (commit.parents[0] ?? 'EMPTY_ROOT');
+		const commit = commit_by_hash.value[selected_commits.value[0]];
+
+		if (!commit) {
+			return undefined;
+		}
+
+		const parent = commit.hash === 'WORKING_TREE' ? 'HEAD' : (commit.parents[0] ?? 'EMPTY_ROOT');
 
 		return [commit.hash, parent];
 	}
 	else if (selected_commits.value.length === 2) {
-		return _.sortBy(selected_commits.value, (hash) => commit_by_hash.value[hash].index);
+		const hashes = selected_commits.value;
+
+		if (hashes.some(h => !commit_by_hash.value[h])){
+			return undefined;
+		}
+
+		return _.sortBy(hashes, (hash) => commit_by_hash.value[hash].index);
 	}
 });
 
@@ -352,7 +362,6 @@ provide('config',              pw(() => config.value,              v => (config.
 provide('references',          pw(() => references.value,          v => (references.value          = v)));
 provide('selected_reference',  pw(() => selected_reference.value,  v => (selected_reference.value  = v)));
 provide('hidden_references',   pw(() => hidden_references.value,   v => (hidden_references.value   = v)));
-// provide('commits',             pw(() => commits.value,             v => (commits.value             = v)));
 provide('selected_commits',    pw(() => selected_commits.value,    v => (selected_commits.value    = v)));
 provide('current_branch_name', pw(() => current_branch_name.value, v => (current_branch_name.value = v)));
 provide('current_operation',   pw(() => current_operation.value,   v => (current_operation.value   = v)));
