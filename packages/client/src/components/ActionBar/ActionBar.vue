@@ -35,7 +35,8 @@
 import WindowEventMixin from '@/mixins/WindowEventMixin';
 import BranchModal from './BranchModal.vue';
 import {NButton} from 'naive-ui';
-// import { restoreWip } from "@/utils/actions";
+import {useStash} from '@/composables/useStash';
+import {useGit} from '@/composables/useGit';
 
 export default {
 	components: {
@@ -57,6 +58,17 @@ export default {
 		"refreshHistory",
 		"refreshStatus",
 	],
+	setup() {
+		const
+			{stashes, getStashes} = useStash(),
+			{callGit} = useGit();
+
+		return {
+			callGit,
+			stashes,
+			getStashes
+		}
+	},
 	data: () => ({
 		show_branch_modal: false,
 	}),
@@ -167,7 +179,7 @@ export default {
 							},
 							...this.config.custom_actions.map((action) => ({
 								...action,
-								callback: () => this.repo.callGit(...action.command),
+								callback: () => this.callGit(...action.command),
 							})),
 						]
 					: []),
@@ -176,13 +188,13 @@ export default {
 	},
 	methods: {
 		async saveStash() {
-			await this.repo.callGit('stash');
-			await this.refreshHistory();
+			await this.callGit('stash');
+			await this.getStashes();
 			await this.refreshStatus();
 		},
 		async popStash() {
-			await this.repo.callGit('stash', 'pop');
-			await this.refreshHistory();
+			await this.callGit('stash', 'pop');
+			await this.getStashes();
 			await this.refreshStatus();
 		},
 		// async saveWip() {

@@ -1,15 +1,17 @@
 import {ref} from 'vue';
+import {useGit} from '@/composables/useGit';
 
 const
 	stashes = ref({});
 
-export function useStash(repo) {
+export function useStash() {
+	const {callGit} = useGit();
 
 	async function getStashes() {
 		stashes.value = {};
 
 		const
-			output = await repo.callGit('stash', 'list', '--format="%gd|%H|%P|%s"');
+			output = await callGit('stash', 'list', '--format="%gd|%H|%P|%s"');
 
 		output.split('\n').filter(Boolean).map(line => {
 			const

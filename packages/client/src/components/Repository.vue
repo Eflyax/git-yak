@@ -87,8 +87,8 @@ import {getStatus} from '@/utils/git';
 import {ESystemEvents} from '@/types';
 import {WebSocketClient} from '@/utils/websocket';
 import {useProject} from '@/composables/useProject';
-import {useStash} from '@/composables/useStash';
 import {useCommits} from '@/composables/useCommits';
+import {useGit} from '@/composables/useGit';
 import ActionBar from './ActionBar/ActionBar.vue';
 import CommitDetails from './CommitDetails/CommitDetails.vue';
 import CommitHistory from './CommitHistory/CommitHistory.vue';
@@ -101,15 +101,11 @@ const {proxy} = getCurrentInstance();
 
 const file_diff      = ref(null);
 const commit_history = ref(null);
-
 const error_messages = ref([]);
-const websocket      = ref(undefined);
-
-// const main_pane_size       = ref(localStorage.getItem('main_pane_size')       || 75);
-// const references_pane_size = ref(localStorage.getItem('references_pane_size') || 15);
 
 // --- project ---
 const {currentProject} = useProject();
+const {websocket} = useGit();
 
 // --- repository state ---
 const config              = ref(undefined);
@@ -123,6 +119,7 @@ const selected_file       = ref(null);
 const save_semaphore      = ref(Promise.resolve());
 const commitHistoryKey    = ref(0);
 
+// @deprecated
 const repo = computed(() => {
 	const handleErrors = async (promise) => {
 		try {
@@ -168,7 +165,7 @@ const references_by_hash = computed(() => _.groupBy(references.value, 'hash'));
 const references_by_type = computed(() => _.groupBy(references.value, 'type'));
 const current_head       = computed(() => references_by_type.value.head?.[0]?.hash);
 
-const {stashes, getStashes} = useStash(repo);
+// const {stashes, getStashes} = useStash(repo);
 
 const {
 	commit_by_hash,
@@ -369,10 +366,10 @@ provide('working_tree_files',  pw(() => working_tree_files.value,  v => (working
 provide('selected_file',       pw(() => selected_file.value,       v => (selected_file.value       = v)));
 provide('save_semaphore',      pw(() => save_semaphore.value,      v => (save_semaphore.value      = v)));
 provide('commitHistoryKey',    pw(() => commitHistoryKey.value,    v => (commitHistoryKey.value    = v)));
-provide('stashes',             pw(() => stashes.value,             v => (stashes.value             = v)));
+// provide('stashes',             pw(() => stashes.value,             v => (stashes.value             = v)));
 
 // Readonly computed
-provide('repo',                   repo);
+provide('repo', repo);
 provide('references_by_hash',     references_by_hash);
 provide('references_by_type',     references_by_type);
 provide('commit_by_hash',         commit_by_hash);
@@ -390,5 +387,5 @@ provide('updateFileStatus',     updateFileStatus);
 provide('saveSelectedFile',     saveSelectedFile);
 provide('refreshHistory',       refreshHistory);
 provide('refreshStatus',        refreshStatus);
-provide('getStashes',           getStashes);
+// provide('getStashes',           getStashes);
 </script>
