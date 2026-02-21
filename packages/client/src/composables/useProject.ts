@@ -3,7 +3,7 @@ import type {IProject} from '@/types';
 
 const
 	projects = ref<IProject[]>([]),
-	openProject = ref<IProject | null>(null),
+	currentProject = ref<IProject | null>(null),
 	editableProject = ref<IProject | null>(null),
 	PROJECTS_STORAGE_KEY = 'projects';
 
@@ -69,14 +69,32 @@ export function useProject() {
 			}
 			saveProjects();
 		}
+
+		return project;
+	}
+
+	function openLastProject() {
+		const lastProject = projects.value.sort((a, b) => b.dateLastOpen - a.dateLastOpen)[0];
+
+		if (lastProject) {
+			currentProject.value = lastProject;
+		}
+	}
+
+	function openProject(project) {
+		project = updateProject(project.id, {dateLastOpen: Date.now()});
+		currentProject.value = project;
+		saveProjects();
 	}
 
 	return {
 		projects: readonly(projects),
+		currentProject: readonly(currentProject),
 		openProject,
 		addProject,
 		removeProject,
 		updateProject,
-		editableProject
+		editableProject,
+		openLastProject
 	};
 }

@@ -3,10 +3,10 @@
 		class="tab-content"
 	>
 		<div
-			v-if="openProject.path === undefined"
+			v-if="currentProject.path === undefined"
 		>
 			<input
-				v-model.trim="openProject.title"
+				v-model.trim="currentProject.title"
 				placeholder="Title"
 				:spellcheck="false"
 			/>
@@ -21,7 +21,7 @@
 					<div class="meta">
 						<span class="repository-name">
 							 <icon name="mdi-folder-open-outline" />
-							 {{ openProject.path?.split('/').pop() }}
+							 {{ currentProject.path?.split('/').pop() }}
 						</span>
 
 						<span class="current-branch-name">
@@ -212,14 +212,14 @@ export default {
 							func_name,
 							async (...args) =>
 								await handleErrors(
-									window.electron[func_name](this.openProject.path, ...args),
+									window.electron[func_name](this.currentProject.path, ...args),
 								),
 						]),
 					);
 
 					const callGitOverWebSocket = async (...args) => {
 						const payload = {
-							repo_path: this.openProject.path,
+							repo_path: this.currentProject.path,
 							args: args,
 						};
 						return await handleErrors(this.websocket.call("git-call", payload));
@@ -227,7 +227,7 @@ export default {
 
 					const readFileOverWebSocket = async (file_path, options = {}) => {
 						const payload = {
-							repo_path: this.openProject.path,
+							repo_path: this.currentProject.path,
 							file_path,
 							options,
 						};
@@ -336,10 +336,10 @@ export default {
 		StoreMixin("references_pane_size", 15),
 	],
 	setup() {
-		const {openProject} = useProject();
+		const {currentProject} = useProject();
 
 		return {
-			openProject
+			currentProject
 		}
 	},
 	data() {
@@ -349,10 +349,10 @@ export default {
 		};
 	},
 	watch: {
-		openProject: {
+		currentProject: {
 			async handler() {
-				if (this.openProject.path !== undefined) {
-					this.websocket = new WebSocketClient(`ws://${this.openProject.server}:${this.openProject.port}`);
+				if (this.currentProject.path !== undefined) {
+					this.websocket = new WebSocketClient(`ws://${this.currentProject.server}:${this.currentProject.port}`);
 
 					const hidden_references_content = await this.repo.readFile(
 						".git/.git-cracken/hidden-refs.txt",
@@ -473,8 +473,8 @@ export default {
 
 			if (path !== undefined) {
 				path = path.replace(/\\/g, "/");
-				this.openProject.path = path;
-				this.openProject.title ??= path.slice(path.lastIndexOf("/") + 1);
+				this.currentProject.path = path;
+				this.currentProject.title ??= path.slice(path.lastIndexOf("/") + 1);
 			}
 
 			return path;

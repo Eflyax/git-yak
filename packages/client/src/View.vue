@@ -5,7 +5,7 @@
 			type="info"
 			secondary
 			class="open-repo"
-			@click="openProject = null"
+			@click="openProject(null)"
 		>
 			<icon name="mdi-folder" />
 		</n-button>
@@ -14,7 +14,7 @@
 			<n-button
 				v-for="project in projects"
 				:key="project.id"
-				@click="openProject = project"
+				@click="openProject(project)"
 				:title="project.path"
 			>
 				{{ project.alias || project.path }}
@@ -24,8 +24,8 @@
 
 	 <div class="tab-wrapper">
 		<TabContent
-			v-if="openProject"
-			:key="openProject.id"
+			v-if="currentProject"
+			:key="currentProject.id"
 		/>
 		<project-manager v-else/>
 	</div>
@@ -45,53 +45,24 @@ export default {
 		TabContent,
 		NButton
 	},
-	mixins: [
-		WindowEventMixin('keydown', 'onKeyDown')
-	],
 	setup() {
 		const
 			notification = useNotification(),
-			{projects, openProject, addProject} = useProject();
+			{projects, openProject, addProject, currentProject, openLastProject} = useProject();
+
+		openLastProject();
 
 		return {
 			notification,
 			addProject,
 			projects,
+			currentProject,
 			openProject
 		}
 	},
 	created() {
 		window.electron = electronMock;
-	},
-	methods: {
-		mockModalWithPathSelection() {
-			this.addProject({
-				alias: 'AA',
-				path: '/Users/eflyax/development/typescript-imports-sort',
-				server: 'localhost',
-					port: 3000,
-			});
-		},
-		closeTab(tab) {
-			_.remove(this.tabs, { id: tab.id });
-
-			if (this.selectedTabId === tab.id) {
-				this.selectedTabId = _.last(this.tabs)?.id;
-			}
-		},
-		addTab() {
-			const
-				id = this.getNextId();
-
-			this.tabs.push({id});
-			this.selectedTabId = id;
-		},
-		onKeyDown(event) {
-			if (event.ctrlKey && event.key === "t") {
-				this.addTab();
-			}
-		},
-	},
+	}
 };
 </script>
 

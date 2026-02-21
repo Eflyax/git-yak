@@ -12,7 +12,7 @@
 					</div>
 					<div class="actions">
 						<n-button
-							@click="openProject = project"
+							@click="openProject(project)"
 							type="success"
 							size="small"
 						>
