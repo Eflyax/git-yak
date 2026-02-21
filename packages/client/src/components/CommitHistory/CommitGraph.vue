@@ -97,6 +97,8 @@
 import CommitRow from './CommitRow.vue';
 import {CONFIG} from '@/settings';
 import {useStash} from '@/composables/useStash';
+// import * as archiveOutline from '@/assets/svg/archive-outline.svg';
+// import archiveOutline from '@/assets/svg/archive-outline.svg?url';
 import ArchiveIcon from '@/assets/svg/archive-outline.svg?component';
 
 export default {

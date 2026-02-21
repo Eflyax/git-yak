@@ -119,7 +119,7 @@
 
 <script>
 import JSON5 from "json5";
-import { computed as vue_computed, computed, getCurrentInstance } from "vue/dist/vue.esm-bundler";
+import { computed as vue_computed } from "vue/dist/vue.esm-bundler";
 import StoreMixin from "@/mixins/StoreMixin";
 import { getStatus } from "@/utils/git";
 import ActionBar from "./ActionBar/ActionBar.vue";
@@ -132,8 +132,6 @@ import {Splitpanes, Pane} from 'splitpanes';
 import { ESystemEvents } from "../types";
 import {WebSocketClient} from '@/utils/websocket';
 import {useProject} from '@/composables/useProject';
-import {useStash} from '@/composables/useStash';
-import {useCommits} from '@/composables/useCommits';
 
 function provideReactively({ data = () => ({}), computed = {}, methods = {} }) {
 	return {
@@ -183,6 +181,8 @@ export default {
 				references: undefined,
 				selected_reference: null,
 				hidden_references: new Set(),
+				commits: undefined,
+				selected_commits: [],
 				current_branch_name: null,
 				current_operation: null,
 				working_tree_files: undefined,
@@ -248,6 +248,9 @@ export default {
 				references_by_type() {
 					return _.groupBy(this.references, "type");
 				},
+				commit_by_hash() {
+					return _.keyBy(this.commits, "hash");
+				},
 				revisions_to_diff() {
 					if (this.selected_commits.length === 1) {
 						const commit = this.commit_by_hash[this.selected_commits[0]];
@@ -289,6 +292,12 @@ export default {
 						this.setSelectedCommits([]);
 					}
 				},
+				setSelectedCommits(hashes) {
+					this.selected_commits = hashes;
+					if (hashes.length > 0) {
+						this.setSelectedReference(null);
+					}
+				},
 				isCurrentBranch(reference) {
 					return (
 						(reference.type === "local_branch" &&
@@ -327,55 +336,11 @@ export default {
 		StoreMixin("references_pane_size", 15),
 	],
 	setup() {
-		const
-			{currentProject} = useProject(),
-			proxy = getCurrentInstance().proxy,
-			repo_ref = computed(() => proxy.repo),
-			refs_by_hash = computed(() => proxy.references_by_hash ?? {}),
-			hidden_refs = computed(() => [...(proxy.hidden_references ?? [])]),
-			head_ref = computed(() => proxy.current_head),
-			{stashes, getStashes} = useStash(repo_ref);
-
-		const {
-			commits,
-			commit_by_hash,
-			selected_commits,
-			setSelectedCommits,
-			loaded_all,
-			current_commit_limit,
-			loadCommits,
-			loadMore,
-		} = useCommits(repo_ref, {
-			references_by_hash: refs_by_hash,
-			hidden_references: hidden_refs,
-			stashes,
-			current_head: head_ref,
-		});
+		const {currentProject} = useProject();
 
 		return {
-			currentProject,
-			stashes,
-			getStashes,
-			commits,
-			commit_by_hash,
-			selected_commits,
-			setSelectedCommits,
-			loaded_all,
-			current_commit_limit,
-			loadCommits,
-			loadMore,
-		};
-	},
-	provide() {
-		return {
-			commits: computed({get: () => this.commits, set: v => (this.commits = v)}),
-			commit_by_hash: computed({get: () => this.commit_by_hash, set: v => (this.commit_by_hash = v)}),
-			selected_commits: computed({get: () => this.selected_commits, set: v => (this.selected_commits = v)}),
-			setSelectedCommits: computed(() => this.setSelectedCommits),
-			loaded_all: computed(() => this.loaded_all),
-			stashes: computed({get: () => this.stashes, set: v => (this.stashes = v)}),
-			getStashes: computed(() => this.getStashes),
-		};
+			currentProject
+		}
 	},
 	data() {
 		return {
@@ -416,12 +381,6 @@ export default {
 				);
 			},
 			deep: true,
-		},
-		// Nahrazuje logiku zrušeného setSelectedCommits — deselektuje referenci při výběru commitu
-		selected_commits(hashes) {
-			if (hashes.length > 0) {
-				this.setSelectedReference(null);
-			}
 		},
 	},
 	async mounted() {

@@ -251,13 +251,9 @@ export default {
 	},
 	methods: {
 		async load() {
-			await Promise.all([
-				this.getStashes(),
-				this.loadHistory(),
-				this.loadStatus(),
-			]);
+			await Promise.all([this.loadHistory(), this.loadStatus(), this.getStashes()]);
 		},
-		async loadHistory({skip_references = false, limit } = {}) {
+		async loadHistory({ skip_references = false, limit } = {}) {
 			if (!skip_references) {
 				const
 					summary = await this.repo.callGit(
