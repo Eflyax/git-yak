@@ -73,18 +73,25 @@
 import {NTag} from 'naive-ui';
 import {CONFIG} from '@/settings';
 import {useGraph} from '@/composables/useGraph';
+import {useGit} from '@/composables/useGit';
 
 export default {
 	components: {
 		NTag
 	},
 	setup() {
-		const {svgDimensions, ROW_MARGIN_BOTTOM, getColor} = useGraph();
+		const
+			{svgDimensions, ROW_MARGIN_BOTTOM, getColor} = useGraph(),
+			{callGit} = useGit();
 
-		return {svgDimensions, ROW_MARGIN_BOTTOM, getColor};
+		return {
+			svgDimensions,
+			ROW_MARGIN_BOTTOM,
+			getColor,
+			callGit
+		};
 	},
 	inject: [
-		'repo',
 		'hidden_references',
 		'current_branch_name',
 		'setSelectedReference',
@@ -199,27 +206,28 @@ export default {
 			return title;
 		},
 		async checkoutBranch(reference) {
-			const
-				refToCheck = reference.type === 'branch'
-					? reference.representativeRef
-					: reference;
+			if (reference.type !== 'branch') {
+				return;
+			}
 
-			// if (
-			// 	this.isCurrentBranch(refToCheck) ||
-			// 	refToCheck.type !== "local_branch"
-			// ) {
-			// 	console.log({
-			// 		refToCheck: {
-			// 			refToCheck
-			// 		}
-			// 	})
-			// 	return;
-			// }
-			// await this.repo.callGit("checkout", refToCheck.name);
-			//
-			await this.repo.callGit('fetch', 'origin');
-			await this.repo.callGit('checkout', refToCheck.name);
-			await this.repo.callGit('reset', '--hard', `origin/${refToCheck.name}`);
+			const
+				branchName = reference.name,
+				isCurrent  = this.isCurrentBranch(reference.representativeRef);
+
+			await this.callGit('fetch', 'origin');
+
+			if (!isCurrent) {
+				if (reference.isLocal) {
+					await this.callGit('checkout', branchName);
+				}
+				else {
+					await this.callGit('checkout', '-b', branchName, `refs/remotes/origin/${branchName}`);
+				}
+			}
+
+			if (reference.remotes.length > 0) {
+				await this.callGit('reset', '--hard', `refs/remotes/origin/${branchName}`);
+			}
 
 			await Promise.all([this.refreshHistory(), this.refreshStatus()]);
 		},
