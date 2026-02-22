@@ -4,6 +4,23 @@
 		isSelected ? 'active' : ''
 	]"
 	>
+		<svg
+			v-if="commit.references.length && !commit.isStash"
+			class="row-line-svg"
+			width="100%"
+			:height="CONFIG.Y_STEP"
+		>
+			<line
+				class="horizontal-line"
+				:x1="CONFIG.PADDING_LEFT"
+				:y1="CONFIG.PADDING_TOP - ROW_MARGIN_BOTTOM"
+				x2="100%"
+				:y2="CONFIG.PADDING_TOP - ROW_MARGIN_BOTTOM"
+				:stroke="getColor(commit.level)"
+				:stroke-width="commit.hash == current_head ? CONFIG.LINE_WIDTH * 2: CONFIG.LINE_WIDTH / 2"
+			/>
+		</svg>
+
 		<div
 			v-for="reference in references"
 			:key="reference.id"
@@ -11,7 +28,7 @@
 			@dblclick="checkoutBranch(reference)"
 			@click="setSelectedCommits([commit.hash])"
 			:style="{
-				backgroundColor: getColor(commit.level)
+				backgroundColor: getColor(commit.level),
 			}"
 			:class="[
 				'tag',
@@ -19,27 +36,31 @@
 			]"
 		>
 			<template v-if="reference.type === 'branch'">
-				<icon name="mdi-source-branch" />
-				<icon
-					v-if="reference.isLocal"
-					name="mdi-laptop"
-					title="Local"
-				/>
-				<icon
-					v-if="reference.remotes.length > 0"
-					name="mdi-cloud-outline"
-					:title="`Remotes: ${reference.remotes.join(', ')}`"
-				/>
+				<div class="icons">
+					<icon name="mdi-source-branch" />
+					<icon
+						v-if="reference.isLocal"
+						name="mdi-laptop"
+						title="Local"
+					/>
+					<icon
+						v-if="reference.remotes.length > 0"
+						name="mdi-cloud-outline"
+						:title="`Remotes: ${reference.remotes.join(', ')}`"
+					/>
+				</div>
 				<span class="name">
 					{{ reference.name }}
 				</span>
 			 </template>
 			<template v-else>
-				<icon
-					v-if="reference.type !== 'head'"
-					:name="$settings.icons[reference.type]"
-					@click="printInfo(reference)"
-				/>
+				<div class="icons">
+					<icon
+						v-if="reference.type !== 'head'"
+						:name="$settings.icons[reference.type]"
+						@click="printInfo(reference)"
+					/>
+				</div>
 				<span class="name">
 					{{ reference.name }}
 				</span>
@@ -51,10 +72,16 @@
 <script>
 import {NTag} from 'naive-ui';
 import {CONFIG} from '@/settings';
+import {useGraph} from '@/composables/useGraph';
 
 export default {
 	components: {
 		NTag
+	},
+	setup() {
+		const {svgDimensions, ROW_MARGIN_BOTTOM, getColor} = useGraph();
+
+		return {svgDimensions, ROW_MARGIN_BOTTOM, getColor};
 	},
 	inject: [
 		'repo',
@@ -143,9 +170,6 @@ export default {
 		},
 	},
 	methods: {
-		getColor(level) {
-			return CONFIG.COLORS[level % CONFIG.COLORS.length];
-		},
 		printInfo(reference) {
 			console.log(reference);
 		},

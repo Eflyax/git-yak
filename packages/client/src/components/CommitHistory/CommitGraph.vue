@@ -45,6 +45,7 @@
 							:x2="CONFIG.PADDING_LEFT + commit.level * CONFIG.X_STEP - svgDimensions.width"
 						 	:y2="(CONFIG.PADDING_TOP + commit.index * CONFIG.Y_STEP) - ROW_MARGIN_BOTTOM"
 							:stroke="getColor(commit.level)"
+							:stroke-width="commit.hash == current_head ? CONFIG.LINE_WIDTH * 2: CONFIG.LINE_WIDTH / 2"
 						/>
 					</template>
 
@@ -107,6 +108,7 @@ export default {
 	inject: [
 		'commit_by_hash',
 		'selected_commits',
+		'current_head'
 	],
 	setup() {
 		const
