@@ -276,10 +276,21 @@ export function useCommits() {
 
 		}
 
+		let mergeHeadHash = '';
+
+		try {
+			mergeHeadHash = (await callGit('rev-parse', 'MERGE_HEAD')).trim();
+		}
+		catch {
+
+		}
+
+		const workingTreeParents = headHash ? [headHash, ...(mergeHeadHash ? [mergeHeadHash] : [])] : [];
+
 		const workingTree: ICommit = {
 			hash: 'WORKING_TREE',
 			hashAbbr: 'WORKING',
-			parents: (headHash ? [headHash] : []) as unknown as ReadonlyArray<string>,
+			parents: workingTreeParents as unknown as ReadonlyArray<string>,
 			subject: 'Working Tree',
 			body: '',
 			authorName: '',
