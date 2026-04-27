@@ -165,7 +165,11 @@ function buildGraph(rawCommits: ICommit[]): void {
 		for (const child of children[commit.hash] ?? []) {
 			remainingParents[child.hash].delete(commit.hash);
 
-			if (remainingParents[child.hash].size === 0 && child.level !== commit.level) {
+			if (
+				remainingParents[child.hash].size === 0 &&
+				child.level !== commit.level &&
+				occupiedLevels[child.level ?? -1] === child
+			) {
 				delete occupiedLevels[child.level ?? -1];
 			}
 		}

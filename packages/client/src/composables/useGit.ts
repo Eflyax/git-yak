@@ -198,6 +198,10 @@ export function useGit() {
 		await callGit('reset', '--mixed', ref);
 	}
 
+	async function mergeAbort(): Promise<void> {
+		await callGit('merge', '--abort');
+	}
+
 	return {
 		activePath,
 		callGit,
@@ -228,5 +232,6 @@ export function useGit() {
 		resetSoft,
 		resetHard,
 		resetMixed,
+		mergeAbort,
 	};
 }

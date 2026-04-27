@@ -165,17 +165,30 @@
 				:rows="3"
 				class="staging-panel__description-input"
 			/>
-			<NButton
-				test-id="commit-btn"
-				class="staging-panel__commit-btn"
-				type="success"
-				size="large"
-				secondary
-				:disabled="!stagedFiles.length || !commitSummary.trim() || (conflictDetected && !!unstagedFiles.length)"
-				@click="handleCommit"
-			>
-				Commit
-			</NButton>
+			<div class="staging-panel__commit-actions">
+				<NButton
+					test-id="commit-btn"
+					class="staging-panel__commit-btn"
+					type="success"
+					size="large"
+					secondary
+					:disabled="!stagedFiles.length || !commitSummary.trim() || (conflictDetected && !!unstagedFiles.length)"
+					@click="handleCommit"
+				>
+					{{ allConflictsResolved ? 'Commit & Merge' : 'Commit' }}
+				</NButton>
+				<NButton
+					v-if="conflictDetected"
+					test-id="abort-merge-btn"
+					class="staging-panel__abort-btn"
+					type="error"
+					size="large"
+					secondary
+					@click="handleAbortMerge"
+				>
+					Abort merge
+				</NButton>
+			</div>
 		</div>
 	</div>
 </template>
@@ -200,9 +213,9 @@ const emit = defineEmits<{
 }>();
 
 const {status, loadStatus, stageFile, stageAll, unstageAll, unstageFile, discardAllChanges, conflictDetected} = useWorkingTree();
-const {currentBranch} = useBranches();
+const {currentBranch, loadBranches} = useBranches();
 const {loadCommits} = useCommits();
-const {commit, activePath} = useGit();
+const {commit, mergeAbort, activePath} = useGit();
 const {loadDiff} = useFileDiff();
 const {contextMenuFile} = useContextMenu();
 const showDiscardConfirm = ref(false);
@@ -213,6 +226,7 @@ const commitDescription = ref('');
 
 const unstagedFiles = computed(() => status.value.unstaged);
 const stagedFiles = computed(() => status.value.staged);
+const allConflictsResolved = computed(() => conflictDetected.value && unstagedFiles.value.length === 0);
 
 const totalCount = computed(() => {
 	const paths = new Set([
@@ -242,6 +256,11 @@ async function handleCommit(): Promise<void> {
 	commitSummary.value = '';
 	commitDescription.value = '';
 	await Promise.all([loadStatus(), loadCommits()]);
+}
+
+async function handleAbortMerge(): Promise<void> {
+	await mergeAbort();
+	await Promise.all([loadStatus(), loadCommits(), loadBranches()]);
 }
 
 loadStatus();
@@ -408,6 +427,16 @@ loadStatus();
 			background: rgba($text-white, 0.06);
 			color: $text-default;
 		}
+	}
+
+	&__commit-actions {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	&__abort-btn {
+		width: 100%;
 	}
 
 	&__summary-input,
