@@ -185,6 +185,7 @@ import {ref, computed} from 'vue';
 import {NButton, NInput} from 'naive-ui';
 import {useWorkingTree} from '@/composables/useWorkingTree';
 import {useBranches} from '@/composables/useBranches';
+import {useCommits} from '@/composables/useCommits';
 import {useGit} from '@/composables/useGit';
 import {useFileDiff} from '@/composables/useFileDiff';
 import {useContextMenu} from '@/composables/useContextMenu';
@@ -200,6 +201,7 @@ const emit = defineEmits<{
 
 const {status, loadStatus, stageFile, stageAll, unstageAll, unstageFile, discardAllChanges, conflictDetected} = useWorkingTree();
 const {currentBranch} = useBranches();
+const {loadCommits} = useCommits();
 const {commit, activePath} = useGit();
 const {loadDiff} = useFileDiff();
 const {contextMenuFile} = useContextMenu();
@@ -239,7 +241,7 @@ async function handleCommit(): Promise<void> {
 	await commit(message);
 	commitSummary.value = '';
 	commitDescription.value = '';
-	await loadStatus();
+	await Promise.all([loadStatus(), loadCommits()]);
 }
 
 loadStatus();

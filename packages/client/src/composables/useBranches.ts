@@ -19,6 +19,8 @@ function parseBranches(output: string): {branches: IBranch[]; current: IBranch |
 		const isRemote = name.startsWith('remotes/');
 		const normalizedName = isRemote ? name.replace(/^remotes\//, '') : name;
 
+		if (normalizedName === 'HEAD' || normalizedName.endsWith('/HEAD')) continue;
+
 		const branch: IBranch = {
 			name: normalizedName,
 			hash,

@@ -18,7 +18,8 @@
 				:test-id="`toolbar-${action.label.toLowerCase()}-btn`"
 				class="toolbar__action-btn"
 				:title="action.label"
-				:disabled="action.disabled"
+				:disabled="action.disabled || action.loading"
+				:loading="action.loading"
 				secondary
 				size="small"
 				@click="action.onClick?.()"
@@ -50,7 +51,7 @@
 
 <script setup lang="ts">
 import {ref, computed} from 'vue';
-import {NButton, useMessage} from 'naive-ui';
+import {NButton, useNotification} from 'naive-ui';
 import {useProject} from '@/composables/useProject';
 import {useBranches} from '@/composables/useBranches';
 import {useGit} from '@/composables/useGit';
@@ -72,29 +73,44 @@ const
 	{toggleActivityLog} = useLayout(),
 	{isConnecting} = useConnectionStatus();
 
-const message = useMessage();
+const notification = useNotification();
 const showBranchModal = ref(false);
+const isPulling = ref(false);
+const isPushing = ref(false);
 
 const props = defineProps<{
 	hideActions: Boolean
 }>();
 
 async function handlePull(): Promise<void> {
+	isPulling.value = true;
+
 	try {
 		await pull();
 		await Promise.all([loadCommits(), loadBranches()]);
+		notification.success({content: 'Pull successful', duration: 3000});
 	}
 	catch (err: unknown) {
-		message.error(err instanceof Error ? err.message : String(err));
+		notification.error({content: err instanceof Error ? err.message : String(err), duration: 5000});
+	}
+	finally {
+		isPulling.value = false;
 	}
 }
 
 async function handlePush(): Promise<void> {
+	isPushing.value = true;
+
 	try {
 		await push();
+		await Promise.all([loadCommits(), loadBranches()]);
+		notification.success({content: 'Push successful', duration: 3000});
 	}
 	catch (err: unknown) {
-		message.error(err instanceof Error ? err.message : String(err));
+		notification.error({content: err instanceof Error ? err.message : String(err), duration: 5000});
+	}
+	finally {
+		isPushing.value = false;
 	}
 }
 
@@ -104,7 +120,7 @@ async function handleStash(): Promise<void> {
 		await Promise.all([loadCommits(), loadStatus()]);
 	}
 	catch (err: unknown) {
-		message.error(err instanceof Error ? err.message : String(err));
+		notification.error({content: err instanceof Error ? err.message : String(err), duration: 5000});
 	}
 }
 
@@ -114,7 +130,7 @@ async function handlePop(): Promise<void> {
 		await Promise.all([loadCommits(), loadStatus()]);
 	}
 	catch (err: unknown) {
-		message.error(err instanceof Error ? err.message : String(err));
+		notification.error({content: err instanceof Error ? err.message : String(err), duration: 5000});
 	}
 }
 
@@ -123,10 +139,12 @@ const popDisabled = computed(() => stashes.value.length === 0);
 const actions = computed(() => [{
 	icon: "mdi-arrow-down-bold",
 	label: "Pull",
+	loading: isPulling.value,
 	onClick: handlePull,
 }, {
 	icon: "mdi-arrow-up-bold",
 	label: "Push",
+	loading: isPushing.value,
 	onClick: handlePush,
 }, {
 	icon: "mdi-source-branch",
@@ -149,7 +167,7 @@ const actions = computed(() => [{
 .toolbar {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
+	position: relative;
 	padding: 0 10px;
 	height: 50px;
 	border-bottom: 1px solid $border;
@@ -157,12 +175,12 @@ const actions = computed(() => [{
 	background-color: $bg-toolbar;
 
 	.profile {
-		width: 200px;
 		height: 40px;
 		display: flex;
 		align-items: center;
 		justify-content: flex-end;
 		gap: 8px;
+		margin-left: auto;
 	}
 
 	&__branch-path {
@@ -170,7 +188,6 @@ const actions = computed(() => [{
 		align-items: center;
 		gap: 5px;
 		font-size: 14px;
-		width: 450px;
 	}
 
 	&__project {
@@ -190,10 +207,12 @@ const actions = computed(() => [{
 
 	&__actions {
 		display: flex;
-		width: 300px;
 		align-items: center;
 		justify-content: center;
 		gap: 5px;
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
 
 		.toolbar__action-btn {
 			height: 48px;

@@ -15,13 +15,19 @@
 	>
 		<!-- Message / Working-tree stats -->
 		<div class="commit-row__body">
-			<CommitFileStats
-				v-if="commit.hash === 'WORKING_TREE'"
-				:A="workingTreeStats.A"
-				:M="workingTreeStats.M"
-				:D="workingTreeStats.D"
-				:R="workingTreeStats.R"
-			/>
+			<template v-if="commit.hash === 'WORKING_TREE'">
+				<template v-if="conflictDetected">
+					<Icon name="mdi-alert" class="commit-row__conflict-icon" />
+					<span class="commit-row__conflict-message">A file conflict was found when attempting to merge into {{ currentBranch?.name }}</span>
+				</template>
+				<CommitFileStats
+					v-else
+					:A="workingTreeStats.A"
+					:M="workingTreeStats.M"
+					:D="workingTreeStats.D"
+					:R="workingTreeStats.R"
+				/>
+			</template>
 			<span v-else class="commit-row__message">{{ commit.subject }}</span>
 		</div>
 
@@ -38,7 +44,9 @@ import {computed} from 'vue';
 import type {ICommit} from '@/domain';
 import {getGraphColor} from './graphColors';
 import CommitFileStats from '@/ui/components/CommitFileStats.vue';
+import Icon from '@/ui/components/Icon.vue';
 import {useWorkingTree} from '@/composables/useWorkingTree';
+import {useBranches} from '@/composables/useBranches';
 
 const ROW_HEIGHT = 28;
 
@@ -79,6 +87,7 @@ void _authorColor;
 void _authorInitial;
 
 const {workingTreeStats, conflictDetected} = useWorkingTree();
+const {currentBranch} = useBranches();
 
 </script>
 
@@ -120,6 +129,22 @@ const {workingTreeStats, conflictDetected} = useWorkingTree();
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+
+	&__conflict-icon {
+		color: $color-warning;
+		flex-shrink: 0;
+		height: 14px;
+		width: 14px;
+	}
+
+	&__conflict-message {
+		color: $color-warning;
+		font-size: 12.5px;
+		font-weight: 500;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	&__meta {

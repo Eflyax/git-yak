@@ -48,7 +48,7 @@
 					:key="file.path"
 					:path="file.path"
 					:status="(file.status as EFileStatus)"
-					@open="emit('openDiff', file.path)"
+					@open="handleFileOpen(file)"
 				/>
 			</div>
 		</template>
@@ -64,14 +64,20 @@ import {computed, watch} from 'vue';
 import ChangedFileItem from './ChangedFileItem.vue';
 import CommitFileStats from '@/ui/components/CommitFileStats.vue';
 import {useCommits} from '@/composables/useCommits';
+import type {ICommitFile} from '@/composables/useCommits';
+import {useFileDiff} from '@/composables/useFileDiff';
 import {getGraphColor} from '@/ui/components/CommitHistory/graphColors';
-import {EFileStatus} from '@/domain/enums';
+import {EFileStatus, EFileArea} from '@/domain/enums';
+import type {IFileStatus} from '@/domain';
 
 const emit = defineEmits<{
 	openDiff: [filePath: string]
 }>();
 
+const EMPTY_TREE_HASH = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
+
 const {selectedHashes, commitMap, commitFiles, loadCommitDetails} = useCommits();
+const {loadDiff} = useFileDiff();
 
 const selectedCommit = computed(() => {
 	const hash = selectedHashes.value[0];
@@ -95,6 +101,25 @@ const avatarLetter = computed(() => {
 
 	return name ? name.charAt(0).toUpperCase() : '?';
 });
+
+const selectedRevisions = computed((): [string, string] => {
+	const commit = selectedCommit.value;
+	if (!commit) return ['WORKING_TREE', 'HEAD'];
+	const parents = commit.parents as string[];
+	const parentHash = parents[0] ?? EMPTY_TREE_HASH;
+	return [commit.hash, parentHash];
+});
+
+async function handleFileOpen(file: ICommitFile): Promise<void> {
+	const fileStatus: IFileStatus = {
+		path: file.path,
+		status: file.status as EFileStatus,
+		oldPath: file.oldPath,
+		area: EFileArea.Committed,
+	};
+	await loadDiff(fileStatus, selectedRevisions.value);
+	emit('openDiff', file.path);
+}
 
 watch(
 	selectedHashes,

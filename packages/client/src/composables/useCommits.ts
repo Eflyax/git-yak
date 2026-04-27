@@ -214,6 +214,8 @@ function parseReferences(refOutput: string): Record<string, IReference[]> {
 		else if (refName.startsWith('refs/remotes/')) {
 			type = EReferenceType.RemoteBranch;
 			name = refName.replace('refs/remotes/', '');
+
+			if (name === 'HEAD' || name.endsWith('/HEAD')) continue;
 		}
 		else if (refName.startsWith('refs/tags/')) {
 			type = EReferenceType.Tag;

@@ -17,7 +17,6 @@
 import FileStatus from '../FileStatus.vue';
 import {computed} from 'vue';
 import {EFileStatus} from '@/domain/enums';
-import {useGit} from '@/composables/useGit';
 
 const props = defineProps<{
 	path: string
@@ -27,8 +26,6 @@ const props = defineProps<{
 const emit = defineEmits<{
 	open: []
 }>();
-
-const {readFile} = useGit();
 
 const parts = computed(() => {
 	const idx = props.path.lastIndexOf('/');
@@ -41,8 +38,7 @@ const parts = computed(() => {
 const fileDir = computed(() => parts.value.dir);
 const fileName = computed(() => parts.value.name);
 
-async function handleOpen(): Promise<void> {
-	await readFile(props.path);
+function handleOpen(): void {
 	emit('open');
 }
 </script>

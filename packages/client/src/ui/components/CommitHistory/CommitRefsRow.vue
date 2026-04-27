@@ -246,7 +246,7 @@ async function handleDblClick(ref: IMergedRef): Promise<void> {
 const overflowCount = computed(() => mergedRefs.value.length - 1);
 
 function isActive(ref: IMergedRef): boolean {
-	return ref.isBranch && currentBranch.value?.name === ref.name;
+	return ref.isBranch && ref.isLocal && currentBranch.value?.name === ref.name;
 }
 
 function getTitle(ref: IMergedRef): string {

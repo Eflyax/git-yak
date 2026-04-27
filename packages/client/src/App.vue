@@ -1,6 +1,6 @@
 <template>
 	<n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
-		<n-notification-provider :placement="'top-left'">
+		<n-notification-provider :placement="'bottom-left'">
 			<n-message-provider>
 				<n-dialog-provider>
 					<AppLayout />
