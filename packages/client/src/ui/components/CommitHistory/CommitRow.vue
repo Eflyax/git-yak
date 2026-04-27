@@ -101,12 +101,12 @@ const {currentBranch} = useBranches();
 	margin-bottom: 4px;
 	background-color: $bg-app;
 
-	&:hover {
+	&:hover:not(&--selected) {
 		box-shadow: inset 0 0 0 999px rgba(black, 0.4);
 	}
 
 	&--selected {
-		box-shadow: inset 0 0 0 999px rgba(black, 0.8);
+		box-shadow: inset 0 0 0 999px rgba(48, 160, 191, 0.4)
 	}
 
 	&--conflict {

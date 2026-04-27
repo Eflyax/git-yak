@@ -19,11 +19,11 @@
 
 		<!-- Graph + rows -->
 		<div v-else class="commit-history__scroll" ref="scrollEl">
-			<div class="commit-history__content" :style="{height: commits.length * ROW_HEIGHT + 'px'}">
+			<div class="commit-history__content" :style="{height: visibleCommits.length * ROW_HEIGHT + 'px'}">
 				<!-- References column (LEFT of graph) -->
 				<div class="commit-history__refs-col">
 					<CommitRefsRow
-						v-for="commit in commits"
+						v-for="commit in visibleCommits"
 						:key="commit.hash"
 						:commit="commit"
 					/>
@@ -32,7 +32,7 @@
 				<!-- SVG graph overlay -->
 				<div class="commit-history__graph-col" :style="{left: REFS_WIDTH + 'px'}">
 					<CommitGraph
-						:commits="commits"
+						:commits="visibleCommits"
 						:selected-hash="selectedHash"
 					/>
 				</div>
@@ -40,7 +40,7 @@
 				<!-- Commit rows -->
 				<div class="commit-history__rows" :style="{marginLeft: totalLeftMargin + 'px'}">
 					<CommitRow
-						v-for="commit in commits"
+						v-for="commit in visibleCommits"
 						:key="commit.hash"
 						:commit="commit"
 						:is-selected="selectedHash === commit.hash"
@@ -80,12 +80,13 @@ import {useLayout} from '@/composables/useLayout';
 import {useContextMenu} from '@/composables/useContextMenu';
 import type {ICommit} from '@/domain';
 
+
 const ROW_HEIGHT = 28;
 const REFS_WIDTH = 180;
 
 const message = useMessage();
 const {commits, selectedHashes, selectCommit, loadCommits} = useCommits();
-const {loadStatus} = useWorkingTree();
+const {loadStatus, hasChanges, conflictDetected} = useWorkingTree();
 const {loadStashes} = useStash();
 const {loadBranches} = useBranches();
 const {currentProject} = useProject();
@@ -103,12 +104,21 @@ const {
 
 const scrollEl = ref<HTMLElement | null>(null);
 
+const visibleCommits = computed((): ICommit[] => {
+	const showWorkingTree = hasChanges.value || conflictDetected.value;
+	const filtered = showWorkingTree
+		? commits.value
+		: commits.value.filter(c => c.hash !== 'WORKING_TREE');
+
+	return filtered.map((c, i) => ({...c, index: i}));
+});
+
 // First selected hash → drives graph highlight and row selection
 const selectedHash = computed(() => selectedHashes.value[0]);
 
 const graphWidth = computed(() => {
-	if (!commits.value.length) return 0;
-	const maxLevel = Math.max(...commits.value.map(c => c.level ?? 0));
+	if (!visibleCommits.value.length) return 0;
+	const maxLevel = Math.max(...visibleCommits.value.map(c => c.level ?? 0));
 
 	return (maxLevel + 1) * 20 + 12 + 16 + 4;
 });
