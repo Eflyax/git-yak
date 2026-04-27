@@ -122,7 +122,7 @@ function initials(alias: string): string {
 	border: 2px solid transparent;
 	background: $bg-button;
 	color: var(--project-color, #{$color-accent});
-	font-size: 0.72em;
+	font-size: 1.6em;
 	font-weight: 700;
 	letter-spacing: 0.02em;
 	cursor: pointer;
