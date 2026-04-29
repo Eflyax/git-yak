@@ -31,7 +31,7 @@ function parseStatus(output: string): IWorkingTreeStatus {
 		const path = token.slice(3);
 		let oldPath: string | undefined;
 
-		if (x === EFileStatus.Renamed || x === EFileStatus.Copied) {
+		if (x === EFileStatus.Renamed || x === EFileStatus.Conflicted) {
 			oldPath = tokens[++i];
 		}
 

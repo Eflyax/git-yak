@@ -78,7 +78,7 @@ const showBranchModal = ref(false);
 const isPulling = ref(false);
 const isPushing = ref(false);
 
-const props = defineProps<{
+defineProps<{
 	hideActions: Boolean
 }>();
 

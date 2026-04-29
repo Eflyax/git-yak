@@ -23,22 +23,10 @@ import {EFileStatus} from '@/domain';
 import FileStatus from '@/ui/components/FileStatus.vue';
 
 const props = defineProps<{
-	'A': {
-		type: EFileStatus,
-		required: true,
-	},
-	'M': {
-		type: EFileStatus,
-		required: true,
-	},
-	'D': {
-		type: EFileStatus,
-		required: true,
-	},
-	'R': {
-		type: EFileStatus,
-		required: true,
-	},
+	A: number
+	M: number
+	D: number
+	R: number
 }>();
 
 </script>

@@ -8,7 +8,8 @@
 		"build": "vue-tsc --noEmit && vite build",
 		"typecheck": "vue-tsc --noEmit",
 		"tauri": "tauri",
-		"tauri:dev": "PATH=$HOME/.cargo/bin:$PATH tauri dev"
+		"tauri:dev": "PATH=$HOME/.cargo/bin:$PATH tauri dev",
+		"tauri:build": "PATH=$HOME/.cargo/bin:$PATH tauri build"
 	},
 	"dependencies": {
 		"@guolao/vue-monaco-editor": "^1.5.1",

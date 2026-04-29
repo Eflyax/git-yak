@@ -15,7 +15,7 @@ export type ConflictSegment = ContextSegment | ConflictBlock;
 export function parseConflicts(content: string): ConflictSegment[] {
 	const allLines = content.split('\n');
 	// Drop trailing empty line produced by split
-	const lines = allLines.at(-1) === '' ? allLines.slice(0, -1) : allLines;
+	const lines = allLines[allLines.length - 1] === '' ? allLines.slice(0, -1) : allLines;
 
 	const segments: ConflictSegment[] = [];
 	let contextLines: string[] = [];

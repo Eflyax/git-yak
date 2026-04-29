@@ -32,7 +32,7 @@
 import Icon from './Icon.vue';
 import {EFileStatus} from '@/domain/enums';
 
-const props = defineProps<{
+defineProps<{
 	status: EFileStatus
 }>();
 

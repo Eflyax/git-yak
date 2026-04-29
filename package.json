@@ -12,7 +12,8 @@
 		"client": "yarn workspace @git-yak/client",
 		"server": "yarn workspace @git-yak/server",
 		"dev": "concurrently \"yarn workspace @git-yak/client dev\" \"yarn workspace @git-yak/server dev\"",
-		"tauri:dev": "yarn workspace @git-yak/remote-worker build:linux && concurrently --kill-others \"yarn workspace @git-yak/server dev\" \"yarn workspace @git-yak/client tauri:dev\""
+		"tauri:dev": "yarn workspace @git-yak/remote-worker build:linux && concurrently --kill-others \"yarn workspace @git-yak/server dev\" \"yarn workspace @git-yak/client tauri:dev\"",
+		"tauri:build": "yarn workspace @git-yak/client tauri:build"
 	},
 	"devDependencies": {
 		"concurrently": "^9.1.2"

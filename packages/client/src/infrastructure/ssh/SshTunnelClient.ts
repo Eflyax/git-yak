@@ -262,19 +262,6 @@ export class SshTunnelClient implements ITransportClient {
 		this.cs.setUploadProgress(100);
 	}
 
-	private async runScp(localPath: string, remotePath: string): Promise<void> {
-		const args = [
-			'-P', String(this.sshPort),
-			'-o', 'BatchMode=yes',
-			'-o', 'StrictHostKeyChecking=accept-new',
-			...(this.keyPath ? ['-i', this.keyPath] : []),
-			localPath,
-			`${this.user}@${this.host}:${remotePath}`,
-		];
-		const r = await Command.create('scp', args).execute();
-		if (r.code !== 0) throw new Error(r.stderr || 'SCP failed');
-	}
-
 	call(command: string, payload: Record<string, unknown>): Promise<unknown> {
 		if (!this.wsClient) return Promise.reject(new Error('Not connected'));
 		return this.wsClient.call(command, payload);

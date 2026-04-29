@@ -18,7 +18,7 @@ export function useFileDiff() {
 
 		if (rev === 'EMPTY_ROOT' || rev === EMPTY_TREE_HASH) return '';
 
-		const filePath = ([EFileStatus.Renamed, EFileStatus.Copied] as string[]).includes(file.status)
+		const filePath = ([EFileStatus.Renamed, EFileStatus.Conflicted] as string[]).includes(file.status)
 			? (file.oldPath ?? file.path)
 			: file.path;
 

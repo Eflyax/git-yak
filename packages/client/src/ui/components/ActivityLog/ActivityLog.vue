@@ -5,7 +5,7 @@
 			<NButton size="tiny" secondary @click="clearLogs">Clear</NButton>
 		</div>
 		<NDataTable
-			:data="logs"
+			:data="[...logs]"
 			:columns="columns"
 			size="small"
 			:row-key="(row) => row.id"
