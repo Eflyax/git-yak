@@ -73,7 +73,7 @@
 			<vue-monaco-diff-editor
 				:original="original"
 				:modified="modified"
-				language="typescript"
+				:language="language"
 				theme="vs-dark"
 				:options="editorOptions"
 				class="file-diff__monaco"
@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import {ref, computed, onBeforeUnmount} from 'vue';
 import type {editor} from 'monaco-editor';
+import type * as Monaco from 'monaco-editor';
 import {NButton} from 'naive-ui';
 import {VueMonacoDiffEditor} from '@guolao/vue-monaco-editor';
 import {useGit} from '@/composables/useGit';
@@ -111,6 +112,33 @@ const tabs: {key: TabKey; label: string}[] = [
 	{key: 'gitDiff', label: 'Git Diff'},
 ];
 
+const EXTENSION_TO_LANGUAGE: Record<string, string> = {
+	ts: 'typescript', tsx: 'typescript',
+	js: 'javascript', jsx: 'javascript', mjs: 'javascript', cjs: 'javascript',
+	json: 'json', jsonc: 'json',
+	html: 'html', vue: 'html',
+	css: 'css', scss: 'scss', less: 'less',
+	md: 'markdown',
+	rs: 'rust',
+	py: 'python',
+	sh: 'shell', bash: 'shell',
+	yml: 'yaml', yaml: 'yaml',
+	xml: 'xml',
+	go: 'go',
+	java: 'java',
+	rb: 'ruby',
+	php: 'php',
+	c: 'c', cpp: 'cpp', h: 'cpp',
+	cs: 'csharp',
+	sql: 'sql',
+	toml: 'ini',
+};
+
+const language = computed(() => {
+	const ext = (activePath.value ?? '').split('.').pop()?.toLowerCase() ?? '';
+	return EXTENSION_TO_LANGUAGE[ext] ?? 'plaintext';
+});
+
 const pathParts = computed(() => (activePath.value ?? '').split('/'));
 const isConflictFile = computed(() => modified.value.includes('<<<<<<<'));
 
@@ -122,8 +150,36 @@ async function handleStageFile(): Promise<void> {
 
 let diffEditor: editor.IStandaloneDiffEditor | null = null;
 
-function handleEditorMount(editorInstance: editor.IStandaloneDiffEditor): void {
+function handleEditorMount(editorInstance: editor.IStandaloneDiffEditor, monacoInstance: typeof Monaco): void {
 	diffEditor = editorInstance;
+
+	monacoInstance.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+		noSemanticValidation: true,
+		noSyntaxValidation: true,
+		noSuggestionDiagnostics: true,
+	});
+	monacoInstance.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+		noSemanticValidation: true,
+		noSyntaxValidation: true,
+		noSuggestionDiagnostics: true,
+	});
+	monacoInstance.languages.json.jsonDefaults.setDiagnosticsOptions({
+		validate: false,
+		allowComments: true,
+	});
+
+	const cssLang = monacoInstance.languages as unknown as {
+		css: {
+			cssDefaults: {setOptions(o: {validate: boolean}): void};
+			lessDefaults: {setOptions(o: {validate: boolean}): void};
+			scssDefaults: {setOptions(o: {validate: boolean}): void};
+		}
+	};
+	if (cssLang.css) {
+		cssLang.css.cssDefaults.setOptions({validate: false});
+		cssLang.css.lessDefaults.setOptions({validate: false});
+		cssLang.css.scssDefaults.setOptions({validate: false});
+	}
 }
 
 onBeforeUnmount(() => {

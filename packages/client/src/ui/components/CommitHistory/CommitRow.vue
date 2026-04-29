@@ -86,6 +86,7 @@ const _authorInitial = computed(() =>
 void _authorColor;
 void _authorInitial;
 
+
 const {workingTreeStats, conflictDetected} = useWorkingTree();
 const {currentBranch} = useBranches();
 
