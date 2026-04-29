@@ -64,6 +64,7 @@
 <script setup lang="ts">
 import {ref, computed, onMounted, onUnmounted} from 'vue';
 import {NButton, useMessage} from 'naive-ui';
+import {invoke} from '@tauri-apps/api/core';
 import {WebSocketClient} from '@/infrastructure/websocket/WebSocketClient';
 import {ENetworkCommand} from '@/domain';
 import Icon from '@/ui/components/Icon.vue';
@@ -78,6 +79,13 @@ interface IBrowseResult {
 	entries: IDirEntry[];
 }
 
+interface ITauriDirEntry {
+	name: string;
+	is_directory: boolean;
+}
+
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
+
 const props = defineProps<{
 	server: string;
 	port: number;
@@ -89,7 +97,7 @@ const emit = defineEmits<{
 }>();
 
 const message = useMessage();
-const initializing = ref(true);
+const initializing = ref(!isTauri);
 const errorMsg = ref('');
 const loading = ref(false);
 const currentPath = ref(props.initialPath ?? '/');
@@ -118,13 +126,20 @@ function joinPath(base: string, name: string): string {
 }
 
 async function loadDirectory(path: string): Promise<void> {
-	if (!client) return;
 	loading.value = true;
 
 	try {
-		const result = await client.call(ENetworkCommand.BrowseFiles, {path}) as IBrowseResult;
-		entries.value = result.entries;
-		currentPath.value = result.path;
+		if (isTauri) {
+			const result = await invoke<Array<ITauriDirEntry>>('browse_directory', {path});
+			entries.value = result.map(e => ({name: e.name, isDirectory: e.is_directory}));
+			currentPath.value = path;
+		}
+		else {
+			if (!client) return;
+			const result = await client.call(ENetworkCommand.BrowseFiles, {path}) as IBrowseResult;
+			entries.value = result.entries;
+			currentPath.value = result.path;
+		}
 	}
 	finally {
 		loading.value = false;
@@ -142,6 +157,16 @@ function navigateUp(): void {
 }
 
 onMounted(async () => {
+	if (isTauri) {
+		try {
+			await loadDirectory(currentPath.value);
+		}
+		catch (e: unknown) {
+			errorMsg.value = e instanceof Error ? e.message : 'Failed to load directory';
+		}
+		return;
+	}
+
 	try {
 		client = new WebSocketClient(`ws://${props.server}:${props.port}`);
 		await loadDirectory(currentPath.value);

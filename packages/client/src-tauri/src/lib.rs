@@ -45,11 +45,63 @@ fn write_log(msg: String) {
     eprintln!("[app] {}", msg);
 }
 
+#[tauri::command]
+fn read_file_at(path: String, null_if_not_exists: bool) -> Result<Option<String>, String> {
+    match std::fs::read_to_string(&path) {
+        Ok(content) => Ok(Some(content)),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound && null_if_not_exists => Ok(None),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[tauri::command]
+fn write_file_at(path: String, content: String, make_directory: bool) -> Result<(), String> {
+    if make_directory {
+        if let Some(parent) = std::path::Path::new(&path).parent() {
+            std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+    }
+    std::fs::write(&path, content).map_err(|e| e.to_string())
+}
+
+#[derive(serde::Serialize)]
+struct DirEntry {
+    name: String,
+    is_directory: bool,
+}
+
+#[tauri::command]
+fn browse_directory(path: String) -> Result<Vec<DirEntry>, String> {
+    let expanded = if path.starts_with("~/") {
+        let home = std::env::var("HOME").unwrap_or_default();
+        std::path::PathBuf::from(format!("{}/{}", home, &path[2..]))
+    } else {
+        std::path::PathBuf::from(&path)
+    };
+
+    let mut entries: Vec<DirEntry> = std::fs::read_dir(&expanded)
+        .map_err(|e| e.to_string())?
+        .filter_map(|e| e.ok())
+        .filter_map(|e| {
+            let name = e.file_name().to_string_lossy().into_owned();
+            let is_directory = e.file_type().map(|t| t.is_dir()).unwrap_or(false);
+            Some(DirEntry { name, is_directory })
+        })
+        .collect();
+
+    entries.sort_by(|a, b| {
+        b.is_directory.cmp(&a.is_directory)
+            .then(a.name.to_lowercase().cmp(&b.name.to_lowercase()))
+    });
+
+    Ok(entries)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![detect_ssh_keys, find_free_port, get_server_binary_path, get_file_size, write_log])
+        .invoke_handler(tauri::generate_handler![detect_ssh_keys, find_free_port, get_server_binary_path, get_file_size, write_log, browse_directory, read_file_at, write_file_at])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -1,10 +1,13 @@
 import {ref, readonly} from 'vue';
 import {WebSocketClient} from '@/infrastructure/websocket/WebSocketClient';
 import {SshTunnelClient} from '@/infrastructure/ssh/SshTunnelClient';
+import {TauriLocalClient} from '@/infrastructure/tauri/TauriLocalClient';
 import type {ITransportClient} from '@/infrastructure/ITransportClient';
 import {EConnectionStatus, ENetworkCommand, EServerType} from '@/domain';
 import type {IProject} from '@/domain';
 import {useConnectionStatus} from '@/composables/useConnectionStatus';
+
+const isTauri = typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
 const client = ref<ITransportClient | null>(null);
 const status = ref<EConnectionStatus>(EConnectionStatus.Idle);
@@ -18,7 +21,10 @@ export function useWebSocket() {
 		try {
 			let newClient: ITransportClient;
 
-			if (project.serverType === EServerType.SSH) {
+			if (isTauri && project.server === 'localhost') {
+				newClient = new TauriLocalClient();
+			}
+			else if (project.serverType === EServerType.SSH) {
 				const t = new SshTunnelClient(
 					project.server,
 					project.port,

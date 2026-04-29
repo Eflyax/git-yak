@@ -10,14 +10,16 @@
       "identifier": "shell:allow-execute",
       "allow": [
         { "name": "ssh", "cmd": "ssh", "args": true, "sidecar": false },
-        { "name": "scp", "cmd": "scp", "args": true, "sidecar": false }
+        { "name": "scp", "cmd": "scp", "args": true, "sidecar": false },
+        { "name": "git", "cmd": "git", "args": true, "sidecar": false }
       ]
     },
     {
       "identifier": "shell:allow-spawn",
       "allow": [
         { "name": "ssh", "cmd": "ssh", "args": true, "sidecar": false },
-        { "name": "scp", "cmd": "scp", "args": true, "sidecar": false }
+        { "name": "scp", "cmd": "scp", "args": true, "sidecar": false },
+        { "name": "git", "cmd": "git", "args": true, "sidecar": false }
       ]
     }
   ]
